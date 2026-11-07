@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-07T14:10:08.225Z",
-  "suppliersSource": "shared/fixtures/rules.json (fallback)",
+  "generatedAt": "2026-11-07T14:28:11.277Z",
+  "suppliersSource": "agent/config/suppliers.json",
   "capsSource": "shared/fixtures/rules.json (fallback)",
   "perPaymentCap": "1500000",
   "dailyCap": "5000000",
