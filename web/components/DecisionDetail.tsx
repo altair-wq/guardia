@@ -18,6 +18,8 @@ import { RiskScore } from "./RiskScore";
 import { InvoiceVsRegistry } from "./InvoiceVsRegistry";
 import { InjectionBlock } from "./InjectionBlock";
 import { Stamp } from "./Stamp";
+import { PendingConfirmation } from "./PendingConfirmation";
+import { displaySteps, isAwaitingConfirmation } from "@/lib/tx";
 
 function Panel({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) {
   const id = `p-${title.replace(/\W+/g, "-").toLowerCase()}`;
@@ -118,7 +120,7 @@ function Detail({ d, rules }: { d: Decision; rules: ReturnType<typeof useSourceS
 
         <div className="space-y-5">
           <Panel title="Lo que hizo el agente">
-            <StepTrace steps={d.steps} />
+            <StepTrace steps={displaySteps(d)} />
           </Panel>
 
           <Panel title="Cotización y ruta">
@@ -159,8 +161,12 @@ function Detail({ d, rules }: { d: Decision; rules: ReturnType<typeof useSourceS
                 <Ban aria-hidden className="h-5 w-5" /> No se ejecutó. {executed?.status === "failed" ? "La llamada al contrato falló y no se movió nada." : "Nunca llegó al contrato."}
               </p>
             )}
-            {(d.status === "processing" || d.status === "received") && <p className="text-fg-muted">Todavía no llegó al contrato.</p>}
-            <TxLink href={d.explorerUrl} hash={d.txHash} className="mt-2" />
+            {isAwaitingConfirmation(d) ? (
+              <PendingConfirmation d={d} />
+            ) : (
+              (d.status === "processing" || d.status === "received") && <p className="text-fg-muted">Todavía no llegó al contrato.</p>
+            )}
+            {!isAwaitingConfirmation(d) && <TxLink d={d} className="mt-2" />}
           </Panel>
         </div>
       </div>
