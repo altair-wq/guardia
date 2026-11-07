@@ -9,6 +9,7 @@ const SERVER_STATE: SourceState = {
   connection: "connecting",
   error: null,
   notice: null,
+  mockChain: null,
 };
 
 export function useSourceState(): SourceState {

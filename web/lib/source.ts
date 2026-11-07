@@ -10,6 +10,8 @@ export interface SourceState {
   error: string | null;
   /** Short-lived message for the presenter (e.g. reset refused). Cleared automatically. */
   notice: string | null;
+  /** From GET /health: true = agent runs MOCK_CHAIN (simulated txs), false = real Arbitrum, null = unknown. */
+  mockChain: boolean | null;
 }
 
 export interface DataSource {
@@ -24,7 +26,41 @@ export interface DataSource {
 }
 
 export const USE_FIXTURES = process.env.NEXT_PUBLIC_USE_FIXTURES !== "false";
-export const AGENT_URL = (process.env.NEXT_PUBLIC_AGENT_URL || "http://localhost:8787").replace(/\/$/, "");
+const ENV_AGENT_URL = (process.env.NEXT_PUBLIC_AGENT_URL || "http://localhost:8787").replace(/\/$/, "");
+const AGENT_URL_KEY = "guardia.agentUrl";
+
+/** Only https URLs (tunnels) or a local agent are accepted as an override. */
+function cleanAgentUrl(raw: string): string | null {
+  try {
+    const u = new URL(raw);
+    const local = u.hostname === "localhost" || u.hostname === "127.0.0.1";
+    if (u.protocol !== "https:" && !(local && u.protocol === "http:")) return null;
+    return u.origin;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Agent base URL. A Cloudflare quick tunnel gets a new URL on every restart, so instead of
+ * redeploying Vercel the presenter can open `/?agent=https://xxxx.trycloudflare.com` once:
+ * it is remembered in this browser. `/?agent=default` goes back to NEXT_PUBLIC_AGENT_URL.
+ */
+export function resolveAgentUrl(): string {
+  if (typeof window === "undefined") return ENV_AGENT_URL;
+  try {
+    const param = new URLSearchParams(window.location.search).get("agent");
+    if (param === "default") window.localStorage.removeItem(AGENT_URL_KEY);
+    else if (param) {
+      const clean = cleanAgentUrl(param);
+      if (clean) window.localStorage.setItem(AGENT_URL_KEY, clean);
+    }
+    const saved = window.localStorage.getItem(AGENT_URL_KEY);
+    return (saved && cleanAgentUrl(saved)) || ENV_AGENT_URL;
+  } catch {
+    return ENV_AGENT_URL;
+  }
+}
 
 const EMPTY: SourceState = {
   decisions: [],
@@ -33,6 +69,7 @@ const EMPTY: SourceState = {
   connection: "connecting",
   error: null,
   notice: null,
+  mockChain: null,
 };
 
 abstract class BaseSource implements DataSource {
@@ -192,7 +229,7 @@ export class LiveSource extends BaseSource {
   private retry = 0;
   private retryTimer: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(private readonly base: string) {
+  constructor(readonly base: string) {
     super();
   }
 
@@ -216,6 +253,16 @@ export class LiveSource extends BaseSource {
     }
   }
 
+  /** Non-fatal: an older agent without /health just leaves mockChain unknown. */
+  private async refreshHealth() {
+    try {
+      const h = await this.json<{ ok?: boolean; mockChain?: boolean }>("/health");
+      this.set({ mockChain: typeof h.mockChain === "boolean" ? h.mockChain : null });
+    } catch {
+      /* keep previous value */
+    }
+  }
+
   private async connect() {
     this.es?.close();
     this.set({ connection: this.retry === 0 ? "connecting" : "reconnecting" });
@@ -224,6 +271,7 @@ export class LiveSource extends BaseSource {
         this.json<Decision[]>("/decisions"),
         this.json<Rules>("/rules"),
       ]);
+      void this.refreshHealth();
       this.set({
         decisions: [...decisions].sort((a, b) => b.receivedAt.localeCompare(a.receivedAt)),
         rules,
@@ -309,6 +357,17 @@ export class LiveSource extends BaseSource {
 
 let singleton: DataSource | null = null;
 export function getSource(): DataSource {
-  if (!singleton) singleton = USE_FIXTURES ? new FixtureSource() : new LiveSource(AGENT_URL);
+  if (!singleton) singleton = USE_FIXTURES ? new FixtureSource() : new LiveSource(resolveAgentUrl());
   return singleton;
+}
+
+/** True when tx hashes cannot exist on Arbiscan: fixtures replay or an agent on MOCK_CHAIN. */
+export function chainIsSimulated(): boolean {
+  if (USE_FIXTURES) return true;
+  return singleton?.getState().mockChain === true;
+}
+
+/** Base URL the live source talks to (for the footer / debugging). */
+export function activeAgentUrl(): string | null {
+  return singleton instanceof LiveSource ? singleton.base : null;
 }

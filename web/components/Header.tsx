@@ -1,9 +1,43 @@
+"use client";
 import Link from "next/link";
-import { FlaskConical, ShieldCheck } from "lucide-react";
+import { FlaskConical, Link2, ShieldCheck } from "lucide-react";
 import { USE_FIXTURES } from "@/lib/source";
+import { useSourceState } from "@/hooks/useSource";
 import type { ConnectionState } from "@/lib/types";
 import { LiveIndicator } from "./LiveIndicator";
 import { ResetNotice } from "./ResetNotice";
+
+const pill = "inline-flex items-center gap-1.5 rounded-pill border px-3 py-1 text-sm font-semibold";
+
+/** Which chain the payments run on: fixtures, agent on MOCK_CHAIN, or real Arbitrum One. */
+function ChainBadge() {
+  const { mockChain } = useSourceState();
+  if (USE_FIXTURES) {
+    return (
+      <span className={`${pill} border-dashed border-fg-subtle/70 text-fg-muted`}>
+        <FlaskConical aria-hidden className="h-4 w-4" />
+        Modo demo: datos simulados
+      </span>
+    );
+  }
+  if (mockChain === true) {
+    return (
+      <span className={`${pill} border-dashed border-fg-subtle/70 text-fg-muted`}>
+        <FlaskConical aria-hidden className="h-4 w-4" />
+        Agente real · cadena simulada
+      </span>
+    );
+  }
+  if (mockChain === false) {
+    return (
+      <span className={`${pill} border-pass/60 text-fg`}>
+        <Link2 aria-hidden className="h-4 w-4 text-pass" />
+        Onchain · Arbitrum One
+      </span>
+    );
+  }
+  return null;
+}
 
 export function Header({ connection }: { connection: ConnectionState }) {
   return (
@@ -19,12 +53,7 @@ export function Header({ connection }: { connection: ConnectionState }) {
           </span>
         </Link>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          {USE_FIXTURES && (
-            <span className="inline-flex items-center gap-1.5 rounded-pill border border-dashed border-fg-subtle/70 px-3 py-1 text-sm font-semibold text-fg-muted">
-              <FlaskConical aria-hidden className="h-4 w-4" />
-              Modo demo: datos simulados
-            </span>
-          )}
+          <ChainBadge />
           <LiveIndicator connection={connection} />
         </div>
       </div>

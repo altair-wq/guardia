@@ -1,15 +1,16 @@
 import type { Decision, Quote, Step } from "./types";
-import { USE_FIXTURES } from "./source";
+import { chainIsSimulated } from "./source";
 
 /** shared/fixtures use fake tx hashes starting with this prefix. */
 export const FIXTURE_HASH_PREFIX = "0xf100";
 
 /**
  * A transaction is simulated (no real Arbiscan page) when the fixtures source is active,
- * the agent fell back to its mock fixed rate, or the hash is a fixture hash.
+ * the agent runs MOCK_CHAIN (per GET /health), the agent fell back to its mock fixed rate,
+ * or the hash is a fixture hash.
  */
 export function isSimulatedTx(d: Pick<Decision, "quote" | "txHash">): boolean {
-  if (USE_FIXTURES) return true;
+  if (chainIsSimulated()) return true;
   if (d.quote?.source === "mock-fixed-rate") return true;
   return !!d.txHash && d.txHash.toLowerCase().startsWith(FIXTURE_HASH_PREFIX);
 }
