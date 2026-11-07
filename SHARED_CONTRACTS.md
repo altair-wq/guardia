@@ -104,5 +104,9 @@ Deploys are not deterministic across chains: always use address + chain together
 
 - **Curve pools are twocrypto-ng, not classic stableswap.** Indices are `uint256`: `get_dy(uint256,uint256,uint256)` and `exchange(uint256,uint256,uint256,uint256,address)`. In both pools ARGt/BRAt is coin 0 and USDT0 (6 decimals) is coin 1. Rough rate at 11:00: 1,000 ARGt ≈ 0.60 USDT0 ≈ 3.3 BRAt.
 - **Agent additions (optional, additive):** `quote.minAmountOut`, `quote.referenceRate`; `POST /invoices` also returns `duplicate: boolean`.
-- **Agent behaviour:** a `high` score blocks even without a hard signal; if the chain call fails after one retry, the execute step is `failed` and the decision is `blocked` with a reason saying nothing moved.
+- **Agent behaviour:** a `high` score blocks even without a hard signal. If a transaction was broadcast but not yet confirmed, the decision stays `processing` with `txHash` and `explorerUrl` set and the execute step `running`; it moves to `paid` or `rejected_onchain` when the receipt lands. Only a transaction that was never broadcast (or mined and reverted) ends as `blocked` with "nothing moved".
+- **Currency:** only invoices totalling in pesos (ARGt/ARS/$) are paid; any other currency is `blocked` with a Spanish reason (no new signal value).
+- **quote.source** values: `curve` (Curve get_dy), `direct` (ARGt supplier, no swap), `mock-fixed-rate` (mock fallback). Belo appears only in `quote.referenceRate`.
+- **Agent API extras:** `GET /health` -> `{ ok, mockChain, vault }`. Non-local `POST /invoices` and `POST /demo/reset` need header `x-guardia-key` (env `GUARDIA_API_KEY`); local requests and all GETs are open. CORS: `ALLOWED_ORIGINS`, default localhost:3000 and `https://*.vercel.app`.
+- **On-chain invoice id** = keccak256(invoiceId + ":" + runNonce); a new runNonce on startup and on `/demo/reset`.
 - **ABI available before deploy:** `contracts/deployments/PolicyVault.abi.json`.
