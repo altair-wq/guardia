@@ -107,8 +107,8 @@ function Detail({ d, rules }: { d: Decision; rules: ReturnType<typeof useSourceS
         {d.status === "rejected_onchain" && <Stamp text="Rechazado onchain" tone="wall" className="absolute right-6 top-6 hidden md:block" />}
       </div>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
-        <div className="space-y-5">
+      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+        <div className="min-w-0 space-y-5">
           {injection && <InjectionBlock d={d} />}
           <Panel title="Factura vs. registro">
             <InvoiceVsRegistry d={d} rules={rules} />
@@ -118,7 +118,7 @@ function Detail({ d, rules }: { d: Decision; rules: ReturnType<typeof useSourceS
           </Panel>
         </div>
 
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           <Panel title="Lo que hizo el agente">
             <StepTrace steps={displaySteps(d)} />
           </Panel>

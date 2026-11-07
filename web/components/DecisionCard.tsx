@@ -64,7 +64,12 @@ export function DecisionCard({ d }: { d: Decision }) {
 
         <div className="mt-4">
           {inFlight && <StepTracker steps={displaySteps(d)} />}
-          {isAwaitingConfirmation(d) && <PendingConfirmation d={d} className="mt-3" />}
+          {isAwaitingConfirmation(d) && (
+            <>
+              {d.quote && <div className="mt-3"><RouteChips quote={d.quote} /></div>}
+              <PendingConfirmation d={d} className="mt-2" />
+            </>
+          )}
 
           {d.status === "blocked" && (
             <>
