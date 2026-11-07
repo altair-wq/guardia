@@ -99,3 +99,10 @@ Schema: `shared/decision.schema.json`. Fixtures: `shared/fixtures/decisions.json
 | Belo price API | `https://api.belo.app/public/price` |
 
 Deploys are not deterministic across chains: always use address + chain together.
+
+## Updates from the modules (11:20)
+
+- **Curve pools are twocrypto-ng, not classic stableswap.** Indices are `uint256`: `get_dy(uint256,uint256,uint256)` and `exchange(uint256,uint256,uint256,uint256,address)`. In both pools ARGt/BRAt is coin 0 and USDT0 (6 decimals) is coin 1. Rough rate at 11:00: 1,000 ARGt ≈ 0.60 USDT0 ≈ 3.3 BRAt.
+- **Agent additions (optional, additive):** `quote.minAmountOut`, `quote.referenceRate`; `POST /invoices` also returns `duplicate: boolean`.
+- **Agent behaviour:** a `high` score blocks even without a hard signal; if the chain call fails after one retry, the execute step is `failed` and the decision is `blocked` with a reason saying nothing moved.
+- **ABI available before deploy:** `contracts/deployments/PolicyVault.abi.json`.
