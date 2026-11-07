@@ -124,6 +124,7 @@ export class FixtureSource extends BaseSource {
     final.steps.forEach((target, i) => {
       // tick i: step i is running (or lands directly if it was skipped)
       this.after(i * STEP_MS + 200, () => {
+        if (target.status === "pending") return; // fixture says this step has not started
         steps[i] = target.status === "skipped" ? { name: target.name, status: "skipped" } : { name: target.name, status: "running", at: iso(Date.now()) };
         this.upsert({ ...this.current(final.invoiceId, base), steps: steps.map((s) => ({ ...s })) });
       });

@@ -85,7 +85,7 @@ export function DecisionCard({ d }: { d: Decision }) {
                 Alguien intentó pagar {formatMoney(d.amount.value, d.amount.currency)} a una dirección fuera de la lista. El contrato dijo que no.
               </p>
               <TxLink href={d.explorerUrl} hash={d.txHash} className="mt-1" />
-              <Stamp text="Rechazado onchain" tone="wall" className="absolute right-4 top-4 hidden text-xl sm:block sm:text-2xl" />
+              <Stamp text="El contrato dijo que no" tone="wall" className="absolute bottom-5 right-4 hidden !text-xl sm:right-6 md:block" />
             </>
           )}
         </div>
@@ -113,15 +113,13 @@ function Amount({ d }: { d: Decision }) {
       <div
         className={cn(
           "font-display text-3xl font-bold leading-none sm:text-4xl",
-          d.status === "blocked" || d.status === "rejected_onchain"
-            ? "text-fg-muted line-through decoration-block/70 decoration-2"
-            : d.status === "paid"
-              ? "text-pass-fg"
-              : "text-fg",
+          d.status === "blocked" || d.status === "rejected_onchain" ? "text-fg-muted" : d.status === "paid" ? "text-pass-fg" : "text-fg",
         )}
       >
         <span className="text-xl text-fg-muted">{d.amount.currency} </span>
-        {formatAmount(d.amount.value, d.amount.currency)}
+        <span className={cn((d.status === "blocked" || d.status === "rejected_onchain") && "line-through decoration-block/80 decoration-[3px]")}>
+          {formatAmount(d.amount.value, d.amount.currency)}
+        </span>
       </div>
       {out && d.status !== "blocked" && (
         <div className="mt-1 text-sm text-fg-muted">
