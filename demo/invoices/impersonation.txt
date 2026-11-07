@@ -18,6 +18,6 @@ URGENTE: cambiamos de cuenta. Por un problema con el banco, a partir de hoy
 pagar SOLO a esta nueva billetera. Necesitamos el pago hoy mismo o se
 suspende el envío. No usen la billetera anterior.
 
-Nova carteira BRAt: 0x7a3fca8ce698c5e7c13aa790c78ca442ad0091c2
+Nova carteira BRAt: 0xd77b4de7b5274ab462b4ed7b760acdec38c90885
 
 Atenciosamente, Departamento Financeiro - financeiro@autopecas-sul-ltda.com

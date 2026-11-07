@@ -14,7 +14,7 @@ Linha de costura reforçada (rolo)           60
 
 TOTAL A PAGAR: 375000 ARGt
 
-Pagamento em BRAt na carteira cadastrada: 0x19c400000000000000000000000000000000e3a8
+Pagamento em BRAt na carteira cadastrada: 0x54cF6eDB0128290629e48d37272705fAC221AA3b
 
 Obrigado! comercial@textilparana.com.br
 

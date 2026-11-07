@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-07T14:28:11.277Z",
+  "generatedAt": "2026-11-07T17:49:40.878Z",
   "suppliersSource": "agent/config/suppliers.json",
   "capsSource": "shared/fixtures/rules.json (fallback)",
   "perPaymentCap": "1500000",
@@ -7,19 +7,19 @@
   "expected": {
     "legit": {
       "supplier": "Autopeças Sul Ltda",
-      "wallet": "0x7a3f0000000000000000000000000000000091c2",
+      "wallet": "0xD77BE95132Ad88b828bf3c2066d9509f54Fb0885",
       "amount": "450000",
       "expected": "paid (BRAt)"
     },
     "impersonation": {
       "supplier": "Autopeças Sul Ltda",
-      "wallet": "0x7a3fca8ce698c5e7c13aa790c78ca442ad0091c2",
+      "wallet": "0xd77b4de7b5274ab462b4ed7b760acdec38c90885",
       "amount": "450000",
       "expected": "blocked: wallet_changed, lookalike_address, urgent_language"
     },
     "injection": {
       "supplier": "Têxtil Paraná Ltda",
-      "wallet": "0x19c400000000000000000000000000000000e3a8",
+      "wallet": "0x54cF6eDB0128290629e48d37272705fAC221AA3b",
       "amount": "375000",
       "expected": "blocked: prompt_injection"
     },

@@ -118,3 +118,15 @@ Deploys are not deterministic across chains: always use address + chain together
 - **USDT0 on Arbitrum:** `0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9`.
 - **Avalanche (UNVERIFIED):** Twin's bridge app code lists ARGt on Avalanche C-Chain at `0x2E4e93eCA2E16E4989b894e188B7F7fC0175703B`. Not officially published; confirm on Snowtrace and with a Twin mentor before using. No Curve pools on Avalanche, so an Avalanche variant would pay ARGt directly.
 - **Test tokens:** no faucet. Ask Twin mentors at the venue or on Twin's Discord (discord.gg/whU99xqnZ, per the track PDF).
+
+## Team wallets on Arbitrum One (public addresses only)
+
+| Role | Address | Env var in contracts/.env |
+| --- | --- | --- |
+| Deployer / owner | `0xcD81A2cd737D9ed26506fCc287771c174a01bEfb` | (from DEPLOYER_PRIVATE_KEY) |
+| Agent hot wallet | `0x40912f9b8738C5714115B2A62ffA707c963577c2` | AGENT_ADDRESS |
+| Supplier BR (Autopeças Sul Ltda, BRAt) | `0xD77BE95132Ad88b828bf3c2066d9509f54Fb0885` | SUPPLIER_BR_WALLET |
+| Supplier BR 2 (Têxtil Paraná Ltda, BRAt) | `0x54cF6eDB0128290629e48d37272705fAC221AA3b` | SUPPLIER_BR2_WALLET |
+| Supplier AR (Insumos del Litoral SRL, ARGt) | `0xB88B9cEcEbD8B6cb8623A404695004534c0C901b` | SUPPLIER_AR_WALLET |
+
+`agent/config/suppliers.json` and the demo invoices now use these wallets. Private keys never go in the repo.

@@ -1,10 +1,10 @@
 {
-  "_note": "Wallets copied from shared/fixtures/rules.json. Replace them with the wallets the contracts module allowlisted in PolicyVault (contracts/deployments/arbitrum.json) before live mode.",
+  "_note": "Real team-controlled demo wallets (Arbitrum One). Must match the allowlist set by contracts/script/Deploy.s.sol: SUPPLIER_BR_WALLET=Autopeças Sul, SUPPLIER_BR2_WALLET=Têxtil Paraná, SUPPLIER_AR_WALLET=Insumos del Litoral. avgAmount gets rescaled once the real caps are known.",
   "suppliers": [
     {
       "name": "Autopeças Sul Ltda",
       "country": "BR",
-      "wallet": "0x7a3f0000000000000000000000000000000091c2",
+      "wallet": "0xD77BE95132Ad88b828bf3c2066d9509f54Fb0885",
       "payToken": "BRAt",
       "website": "https://example.com/autopecas-sul",
       "avgAmount": "1200000"
@@ -12,7 +12,7 @@
     {
       "name": "Têxtil Paraná Ltda",
       "country": "BR",
-      "wallet": "0x19c400000000000000000000000000000000e3a8",
+      "wallet": "0x54cF6eDB0128290629e48d37272705fAC221AA3b",
       "payToken": "BRAt",
       "website": "https://example.com/textil-parana",
       "avgAmount": "650000"
@@ -20,7 +20,7 @@
     {
       "name": "Insumos del Litoral SRL",
       "country": "AR",
-      "wallet": "0xd02b000000000000000000000000000000005f71",
+      "wallet": "0xB88B9cEcEbD8B6cb8623A404695004534c0C901b",
       "payToken": "ARGt",
       "website": "https://example.com/insumos-litoral",
       "avgAmount": "900000"
