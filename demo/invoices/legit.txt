@@ -1,0 +1,22 @@
+FATURA COMERCIAL / FACTURA COMERCIAL
+
+Autopeças Sul Ltda
+CNPJ 12.345.678/0001-90 - Rua Voluntários da Pátria 1450, Porto Alegre - RS, Brasil
+
+Fatura Nº: APS-2026-1187          Data de emissão: 2026-11-07
+Vencimento: 2026-11-22
+
+Cliente: Repuestos Rivadavia SRL - CUIT 30-71234567-8
+Av. Rivadavia 8420, CABA, Argentina
+
+Descrição                                   Qtd.
+Pastilhas de freio dianteiras (jogo)        40
+Filtros de óleo linha leve                  120
+Correias dentadas kit                       25
+
+TOTAL A PAGAR: 450000 ARGt
+
+Forma de pagamento: stablecoin. Recebemos em BRAt (Twin) na carteira cadastrada:
+0x7a3f0000000000000000000000000000000091c2
+
+Obrigado pela preferência. Dúvidas: financeiro@autopecassul.com.br

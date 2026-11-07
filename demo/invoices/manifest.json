@@ -1,0 +1,33 @@
+{
+  "generatedAt": "2026-11-07T14:10:08.225Z",
+  "suppliersSource": "shared/fixtures/rules.json (fallback)",
+  "capsSource": "shared/fixtures/rules.json (fallback)",
+  "perPaymentCap": "1500000",
+  "dailyCap": "5000000",
+  "expected": {
+    "legit": {
+      "supplier": "Autopeças Sul Ltda",
+      "wallet": "0x7a3f0000000000000000000000000000000091c2",
+      "amount": "450000",
+      "expected": "paid (BRAt)"
+    },
+    "impersonation": {
+      "supplier": "Autopeças Sul Ltda",
+      "wallet": "0x7a3fca8ce698c5e7c13aa790c78ca442ad0091c2",
+      "amount": "450000",
+      "expected": "blocked: wallet_changed, lookalike_address, urgent_language"
+    },
+    "injection": {
+      "supplier": "Têxtil Paraná Ltda",
+      "wallet": "0x19c400000000000000000000000000000000e3a8",
+      "amount": "375000",
+      "expected": "blocked: prompt_injection"
+    },
+    "force_bad_payment": {
+      "supplier": "(not allowlisted)",
+      "wallet": "0xbad0c0ffee5ca1ab1e0000000000000000000666",
+      "amount": "150000",
+      "expected": "PaymentRejected(not_allowlisted) onchain"
+    }
+  }
+}
