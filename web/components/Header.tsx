@@ -3,6 +3,7 @@ import { FlaskConical, ShieldCheck } from "lucide-react";
 import { USE_FIXTURES } from "@/lib/source";
 import type { ConnectionState } from "@/lib/types";
 import { LiveIndicator } from "./LiveIndicator";
+import { ResetNotice } from "./ResetNotice";
 
 export function Header({ connection }: { connection: ConnectionState }) {
   return (
@@ -27,6 +28,7 @@ export function Header({ connection }: { connection: ConnectionState }) {
           <LiveIndicator connection={connection} />
         </div>
       </div>
+      <ResetNotice />
     </header>
   );
 }

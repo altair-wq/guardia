@@ -7,6 +7,8 @@ export interface SourceState {
   rules: Rules | null;
   connection: ConnectionState;
   error: string | null;
+  /** Short-lived message for the presenter (e.g. reset refused). Cleared automatically. */
+  notice: string | null;
 }
 
 export interface DataSource {
@@ -23,7 +25,7 @@ export interface DataSource {
 export const USE_FIXTURES = process.env.NEXT_PUBLIC_USE_FIXTURES !== "false";
 export const AGENT_URL = (process.env.NEXT_PUBLIC_AGENT_URL || "http://localhost:8787").replace(/\/$/, "");
 
-const EMPTY: SourceState = { decisions: [], rules: null, connection: "connecting", error: null };
+const EMPTY: SourceState = { decisions: [], rules: null, connection: "connecting", error: null, notice: null };
 
 abstract class BaseSource implements DataSource {
   abstract readonly kind: "fixtures" | "live";
@@ -262,9 +264,30 @@ export class LiveSource extends BaseSource {
     }
   }
 
+  private noticeTimer: ReturnType<typeof setTimeout> | null = null;
+  private notify(msg: string) {
+    if (this.noticeTimer) clearTimeout(this.noticeTimer);
+    this.set({ notice: msg });
+    this.noticeTimer = setTimeout(() => this.set({ notice: null }), 5000);
+  }
+
   async reset() {
-    await fetch(`${this.base}/demo/reset`, { method: "POST" });
-    this.set({ decisions: [] });
+    let res: Response;
+    try {
+      res = await fetch(`${this.base}/demo/reset`, { method: "POST" });
+    } catch {
+      this.notify("Reset falló: no pude hablar con el agente");
+      return; // keep the feed
+    }
+    if (res.status === 401 || res.status === 403) {
+      this.notify("Reset bloqueado: hace falta la clave del agente");
+      return; // keep the feed
+    }
+    if (!res.ok) {
+      this.notify(`Reset falló (HTTP ${res.status})`);
+      return;
+    }
+    this.set({ decisions: [], notice: null });
     await this.refreshRules();
   }
 }
