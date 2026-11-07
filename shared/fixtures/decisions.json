@@ -1,0 +1,128 @@
+[
+  {
+    "invoiceId": "inv_007",
+    "receivedAt": "2026-11-07T18:02:41Z",
+    "supplier": { "name": "Têxtil Paraná Ltda", "wallet": "0x19c400000000000000000000000000000000e3a8", "country": "BR", "currency": "BRAt" },
+    "amount": { "value": "640000", "currency": "ARGt" },
+    "quote": { "route": ["ARGt", "USDT0", "BRAt"], "amountOut": "3830.40", "source": "belo-price-api" },
+    "risk": { "score": 12, "level": "low", "signals": [] },
+    "status": "processing",
+    "reason": "Analizando la factura.",
+    "steps": [
+      { "name": "extract", "status": "done", "at": "2026-11-07T18:02:42Z" },
+      { "name": "verify", "status": "done", "at": "2026-11-07T18:02:45Z" },
+      { "name": "score", "status": "running", "at": "2026-11-07T18:02:47Z" },
+      { "name": "execute", "status": "pending" }
+    ],
+    "txHash": null,
+    "explorerUrl": null
+  },
+  {
+    "invoiceId": "inv_006",
+    "receivedAt": "2026-11-07T17:58:12Z",
+    "supplier": { "name": "Autopeças Sul Ltda", "wallet": "0x7a3f000000000000000000000000000000000b4e", "country": "BR", "currency": "BRAt" },
+    "amount": { "value": "1250000", "currency": "ARGt" },
+    "quote": null,
+    "risk": { "score": 91, "level": "high", "signals": ["wallet_changed", "urgent_language"] },
+    "status": "blocked",
+    "reason": "La billetera no coincide con la registrada para Autopeças Sul y el mensaje pide pagar con urgencia. No se movió nada.",
+    "steps": [
+      { "name": "extract", "status": "done", "at": "2026-11-07T17:58:13Z" },
+      { "name": "verify", "status": "done", "at": "2026-11-07T17:58:16Z" },
+      { "name": "score", "status": "done", "at": "2026-11-07T17:58:18Z" },
+      { "name": "execute", "status": "skipped" }
+    ],
+    "txHash": null,
+    "explorerUrl": null
+  },
+  {
+    "invoiceId": "inv_005",
+    "receivedAt": "2026-11-07T17:55:03Z",
+    "supplier": { "name": "Insumos del Litoral SRL", "wallet": "0xd02b000000000000000000000000000000005f71", "country": "AR", "currency": "ARGt" },
+    "amount": { "value": "900000", "currency": "ARGt" },
+    "quote": null,
+    "risk": { "score": 97, "level": "high", "signals": ["prompt_injection"] },
+    "status": "blocked",
+    "reason": "La factura trae instrucciones ocultas para la IA. Las ignoré y bloqueé el pago.",
+    "steps": [
+      { "name": "extract", "status": "done", "at": "2026-11-07T17:55:04Z" },
+      { "name": "verify", "status": "done", "at": "2026-11-07T17:55:06Z" },
+      { "name": "score", "status": "done", "at": "2026-11-07T17:55:08Z" },
+      { "name": "execute", "status": "skipped" }
+    ],
+    "txHash": null,
+    "explorerUrl": null
+  },
+  {
+    "invoiceId": "inv_004",
+    "receivedAt": "2026-11-07T17:51:37Z",
+    "supplier": { "name": "Autopeças Sul Ltda", "wallet": "0x7a3f0000000000000000000000000000000091c2", "country": "BR", "currency": "BRAt" },
+    "amount": { "value": "1250000", "currency": "ARGt" },
+    "quote": { "route": ["ARGt", "USDT0", "BRAt"], "amountOut": "7480.12", "source": "belo-price-api" },
+    "risk": { "score": 8, "level": "low", "signals": [] },
+    "status": "paid",
+    "reason": "Proveedor verificado, billetera registrada y monto habitual. Pagado en reales.",
+    "steps": [
+      { "name": "extract", "status": "done", "at": "2026-11-07T17:51:38Z" },
+      { "name": "verify", "status": "done", "at": "2026-11-07T17:51:41Z" },
+      { "name": "score", "status": "done", "at": "2026-11-07T17:51:43Z" },
+      { "name": "execute", "status": "done", "at": "2026-11-07T17:51:49Z" }
+    ],
+    "txHash": "0xf100000000000000000000000000000000000000000000000000000000000004",
+    "explorerUrl": "https://arbiscan.io/tx/0xf100000000000000000000000000000000000000000000000000000000000004"
+  },
+  {
+    "invoiceId": "inv_003",
+    "receivedAt": "2026-11-07T17:47:20Z",
+    "supplier": { "name": "Dirección desconocida", "wallet": "0x9e010000000000000000000000000000000044bd", "country": "??", "currency": "ARGt" },
+    "amount": { "value": "400000", "currency": "ARGt" },
+    "quote": null,
+    "risk": { "score": 100, "level": "high", "signals": ["unknown_supplier"] },
+    "status": "rejected_onchain",
+    "reason": "Intento de pago a una dirección fuera de la lista. El contrato lo rechazó onchain: aunque la IA falle, las reglas no.",
+    "steps": [
+      { "name": "extract", "status": "skipped" },
+      { "name": "verify", "status": "skipped" },
+      { "name": "score", "status": "skipped" },
+      { "name": "execute", "status": "failed", "at": "2026-11-07T17:47:24Z" }
+    ],
+    "txHash": "0xf100000000000000000000000000000000000000000000000000000000000003",
+    "explorerUrl": "https://arbiscan.io/tx/0xf100000000000000000000000000000000000000000000000000000000000003"
+  },
+  {
+    "invoiceId": "inv_002",
+    "receivedAt": "2026-11-07T16:20:10Z",
+    "supplier": { "name": "Têxtil Paraná Ltda", "wallet": "0x19c400000000000000000000000000000000e3a8", "country": "BR", "currency": "BRAt" },
+    "amount": { "value": "640000", "currency": "ARGt" },
+    "quote": { "route": ["ARGt", "USDT0", "BRAt"], "amountOut": "3830.40", "source": "belo-price-api" },
+    "risk": { "score": 10, "level": "low", "signals": [] },
+    "status": "paid",
+    "reason": "Proveedor verificado y monto habitual. Pagado en reales.",
+    "steps": [
+      { "name": "extract", "status": "done", "at": "2026-11-07T16:20:11Z" },
+      { "name": "verify", "status": "done", "at": "2026-11-07T16:20:14Z" },
+      { "name": "score", "status": "done", "at": "2026-11-07T16:20:16Z" },
+      { "name": "execute", "status": "done", "at": "2026-11-07T16:20:22Z" }
+    ],
+    "txHash": "0xf100000000000000000000000000000000000000000000000000000000000002",
+    "explorerUrl": "https://arbiscan.io/tx/0xf100000000000000000000000000000000000000000000000000000000000002"
+  },
+  {
+    "invoiceId": "inv_001",
+    "receivedAt": "2026-11-07T15:05:44Z",
+    "supplier": { "name": "Insumos del Litoral SRL", "wallet": "0xd02b000000000000000000000000000000005f71", "country": "AR", "currency": "ARGt" },
+    "amount": { "value": "1590000", "currency": "ARGt" },
+    "quote": { "route": ["ARGt"], "amountOut": "1590000", "source": "direct" },
+    "risk": { "score": 15, "level": "low", "signals": [] },
+    "status": "paid",
+    "reason": "Proveedor local verificado. Pagado directo en ARGt.",
+    "steps": [
+      { "name": "extract", "status": "done", "at": "2026-11-07T15:05:45Z" },
+      { "name": "verify", "status": "done", "at": "2026-11-07T15:05:47Z" },
+      { "name": "score", "status": "done", "at": "2026-11-07T15:05:49Z" },
+      { "name": "execute", "status": "done", "at": "2026-11-07T15:05:54Z" }
+    ],
+    "txHash": "0xf100000000000000000000000000000000000000000000000000000000000001",
+    "explorerUrl": "https://arbiscan.io/tx/0xf100000000000000000000000000000000000000000000000000000000000001"
+  }
+]

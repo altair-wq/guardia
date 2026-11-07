@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/altair-wq/guardia/shared/decision.schema.json",
+  "title": "Decision",
+  "type": "object",
+  "required": ["invoiceId", "receivedAt", "supplier", "amount", "risk", "status", "reason", "steps", "txHash", "explorerUrl"],
+  "properties": {
+    "invoiceId": { "type": "string" },
+    "receivedAt": { "type": "string", "format": "date-time" },
+    "supplier": {
+      "type": "object",
+      "required": ["name", "wallet", "country", "currency"],
+      "properties": {
+        "name": { "type": "string" },
+        "wallet": { "type": "string" },
+        "country": { "type": "string" },
+        "currency": { "type": "string", "enum": ["ARGt", "BRAt", "COLt", "PERt", "MEXt", "CHLt", "BOLt"] }
+      }
+    },
+    "amount": {
+      "type": "object",
+      "required": ["value", "currency"],
+      "properties": {
+        "value": { "type": "string" },
+        "currency": { "type": "string" }
+      }
+    },
+    "quote": {
+      "type": ["object", "null"],
+      "properties": {
+        "route": { "type": "array", "items": { "type": "string" } },
+        "amountOut": { "type": "string" },
+        "source": { "type": "string" }
+      }
+    },
+    "risk": {
+      "type": "object",
+      "required": ["score", "level", "signals"],
+      "properties": {
+        "score": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "level": { "type": "string", "enum": ["low", "medium", "high"] },
+        "signals": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["wallet_changed", "lookalike_address", "unknown_supplier", "amount_anomaly", "urgent_language", "prompt_injection", "website_mismatch"]
+          }
+        }
+      }
+    },
+    "status": { "type": "string", "enum": ["received", "processing", "paid", "blocked", "rejected_onchain"] },
+    "reason": { "type": "string" },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "status"],
+        "properties": {
+          "name": { "type": "string", "enum": ["extract", "verify", "score", "execute"] },
+          "status": { "type": "string", "enum": ["pending", "running", "done", "skipped", "failed"] },
+          "at": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "txHash": { "type": ["string", "null"] },
+    "explorerUrl": { "type": ["string", "null"] }
+  }
+}
