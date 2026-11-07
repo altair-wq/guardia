@@ -11,9 +11,6 @@ export function LiveIndicator({ connection }: { connection: ConnectionState }) {
         className={cn("h-3 w-3 rounded-full", ok ? "animate-pulse-dot bg-pass motion-reduce:animate-none" : "bg-block")}
       />
       <span className={cn("text-sm font-semibold sm:text-base", ok ? "text-fg" : "text-block-fg")}>{label}</span>
-      {connection === "replay" && (
-        <span className="rounded-chip border border-line px-1.5 py-0.5 text-xs text-fg-muted">datos de demo</span>
-      )}
     </div>
   );
 }
