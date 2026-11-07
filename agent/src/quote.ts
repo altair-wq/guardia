@@ -37,42 +37,37 @@ export async function curveQuoteARGtToBRAt(amountARGt: string): Promise<{ expect
 }
 
 // ---- Belo reference price -------------------------------------------------
-// The public endpoint was not reachable from the build sandbox, so its shape is parsed
-// defensively: we look for USDT (or USD) quotes against ARS and BRL with ask/bid/price fields.
-// TODO(team): curl https://api.belo.app/public/price once and tighten this type.
-type BeloEntry = Record<string, unknown>;
+// Real shape of GET https://api.belo.app/public/price (checked Nov 7, 2026): a JSON array of
+//   { ask, bid, baseId, quoteId, pairCode, spread }   (all values are strings)
+// e.g. { "pairCode": "BRAt/ARGt", "ask": "302.56", "bid": "293.89", ... } = ARGt per 1 BRAt.
+// Belo also lists "USDT/ARGt" and "USDT/BRAt"; we use those as a fallback cross rate.
+export type BeloEntry = { ask?: string; bid?: string; baseId?: string; quoteId?: string; pairCode?: string; spread?: string };
 
 function num(v: unknown): number | null {
   const n = typeof v === "string" ? Number(v) : typeof v === "number" ? v : NaN;
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
-function midOf(e: BeloEntry): number | null {
-  const ask = num(e.ask ?? e.sell ?? e.venta);
-  const bid = num(e.bid ?? e.buy ?? e.compra);
+/** Mid price (quote units per 1 base unit) of a Belo pair, or null if absent/invalid. */
+function midOfPair(entries: BeloEntry[], pairCode: string): number | null {
+  const e = entries.find((x) => x.pairCode?.toUpperCase() === pairCode.toUpperCase());
+  if (!e) return null;
+  const ask = num(e.ask);
+  const bid = num(e.bid);
   if (ask && bid) return (ask + bid) / 2;
-  return num(e.price ?? e.mid ?? e.last ?? e.value ?? ask ?? bid);
+  return ask ?? bid;
 }
 
-function collect(node: unknown, path: string, out: { key: string; entry: BeloEntry }[]): void {
-  if (Array.isArray(node)) node.forEach((n, i) => collect(n, `${path}[${i}]`, out));
-  else if (node && typeof node === "object") {
-    const o = node as BeloEntry;
-    const label = [path, ...Object.values(o).filter((v) => typeof v === "string")].join(" ").toUpperCase();
-    if (midOf(o) !== null) out.push({ key: label, entry: o });
-    for (const [k, v] of Object.entries(o)) if (v && typeof v === "object") collect(v, `${path}.${k}`, out);
-  }
-}
-
-/** Units of local fiat per 1 USD(T), from Belo. */
-export function beloUsdRates(json: unknown): { ARS?: number; BRL?: number } {
-  const entries: { key: string; entry: BeloEntry }[] = [];
-  collect(json, "", entries);
-  const pick = (fiat: string) => {
-    const e = entries.find((x) => /USDT?|USD/.test(x.key) && x.key.includes(fiat));
-    return e ? midOf(e.entry) ?? undefined : undefined;
-  };
-  return { ARS: pick("ARS"), BRL: pick("BRL") };
+/** BRAt received per 1 ARGt according to Belo (reference only), or null. */
+export function beloBratPerArgt(json: unknown): number | null {
+  if (!Array.isArray(json)) return null;
+  const entries = json as BeloEntry[];
+  const argtPerBrat = midOfPair(entries, "BRAt/ARGt");
+  if (argtPerBrat) return 1 / argtPerBrat;
+  const argtPerUsdt = midOfPair(entries, "USDT/ARGt");
+  const bratPerUsdt = midOfPair(entries, "USDT/BRAt");
+  if (argtPerUsdt && bratPerUsdt) return bratPerUsdt / argtPerUsdt;
+  return null;
 }
 
 let beloShapeLogged = false;
@@ -85,9 +80,9 @@ export async function beloReferenceRate(log: (m: string) => void): Promise<numbe
       beloShapeLogged = true;
       log(`belo response sample: ${JSON.stringify(json).slice(0, 300)}`);
     }
-    const r = beloUsdRates(json);
-    if (!r.ARS || !r.BRL) throw new Error("ARS/BRL not found in response");
-    return r.BRL / r.ARS; // BRL per ARS
+    const r = beloBratPerArgt(json);
+    if (!r) throw new Error("BRAt/ARGt pair not found in response");
+    return r; // BRAt per ARGt
   } catch (e) {
     log(`belo price unavailable, keeping Curve quote: ${(e as Error).message}`);
     return null;

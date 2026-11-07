@@ -110,3 +110,11 @@ Deploys are not deterministic across chains: always use address + chain together
 - **Agent API extras:** `GET /health` -> `{ ok, mockChain, vault }`. Non-local `POST /invoices` and `POST /demo/reset` need header `x-guardia-key` (env `GUARDIA_API_KEY`); local requests and all GETs are open. CORS: `ALLOWED_ORIGINS`, default localhost:3000 and `https://*.vercel.app`.
 - **On-chain invoice id** = keccak256(invoiceId + ":" + runNonce); a new runNonce on startup and on `/demo/reset`.
 - **ABI available before deploy:** `contracts/deployments/PolicyVault.abi.json`.
+
+## Findings from Twin's public sites (13:15)
+
+- **Belo price API shape (confirmed):** `GET https://api.belo.app/public/price` returns an array of `{ ask, bid, baseId, quoteId, pairCode, spread }`, all strings. `BRAt/ARGt` is a direct pair (about 300 ARGt per BRAt on Nov 7); `USDT/ARGt` and `USDT/BRAt` also exist. ARGt prices equal ARS prices. Spreads are wide (about 2.9% BRAt/ARGt).
+- **Liquidity (Nov 7):** ARGt/USDT0 pool about US$29.6K TVL, BRAt/USDT0 about US$24.4K. Keep demo amounts small.
+- **USDT0 on Arbitrum:** `0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9`.
+- **Avalanche (UNVERIFIED):** Twin's bridge app code lists ARGt on Avalanche C-Chain at `0x2E4e93eCA2E16E4989b894e188B7F7fC0175703B`. Not officially published; confirm on Snowtrace and with a Twin mentor before using. No Curve pools on Avalanche, so an Avalanche variant would pay ARGt directly.
+- **Test tokens:** no faucet. Ask Twin mentors at the venue or on Twin's Discord (discord.gg/whU99xqnZ, per the track PDF).
