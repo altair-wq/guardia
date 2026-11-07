@@ -1,0 +1,7 @@
+{
+  "_note": "Used only when MOCK_CHAIN=true. Same shape as the on-chain rules so mocked rejections look real. Amounts in ARGt (human units).",
+  "vault": "0x4b1e00000000000000000000000000000000a07d",
+  "balance": "12400000",
+  "perPaymentCap": "1500000",
+  "dailyCap": "5000000"
+}

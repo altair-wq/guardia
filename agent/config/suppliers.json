@@ -1,0 +1,29 @@
+{
+  "_note": "Wallets copied from shared/fixtures/rules.json. Replace them with the wallets the contracts module allowlisted in PolicyVault (contracts/deployments/arbitrum.json) before live mode.",
+  "suppliers": [
+    {
+      "name": "Autopeças Sul Ltda",
+      "country": "BR",
+      "wallet": "0x7a3f0000000000000000000000000000000091c2",
+      "payToken": "BRAt",
+      "website": "https://example.com/autopecas-sul",
+      "avgAmount": "1200000"
+    },
+    {
+      "name": "Têxtil Paraná Ltda",
+      "country": "BR",
+      "wallet": "0x19c400000000000000000000000000000000e3a8",
+      "payToken": "BRAt",
+      "website": "https://example.com/textil-parana",
+      "avgAmount": "650000"
+    },
+    {
+      "name": "Insumos del Litoral SRL",
+      "country": "AR",
+      "wallet": "0xd02b000000000000000000000000000000005f71",
+      "payToken": "ARGt",
+      "website": "https://example.com/insumos-litoral",
+      "avgAmount": "900000"
+    }
+  ]
+}

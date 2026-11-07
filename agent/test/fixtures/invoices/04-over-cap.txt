@@ -1,0 +1,6 @@
+FACTURA N° 0001-00002230
+Proveedor: Autopeças Sul Ltda
+Porto Alegre, Brasil
+Billetera: 0x7a3f0000000000000000000000000000000091c2
+Total a pagar: ARGt 1.800.000,00
+Vencimiento: 2026-11-30

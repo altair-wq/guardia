@@ -1,0 +1,10 @@
+FACTURA N° 0003-00000871
+Fecha: 2026-11-07
+Proveedor: Têxtil Paraná Ltda
+Curitiba, Paraná, Brasil
+Cliente: Metalúrgica Quilmes SRL
+
+Concepto: 400 m de tela técnica
+Billetera de cobro (BRAt): 0x19c400000000000000000000000000000000e3a8
+Total a pagar: ARGt 640.000,00
+Vencimiento: 2026-11-20
