@@ -31,7 +31,8 @@ The modules only talk through [`SHARED_CONTRACTS.md`](SHARED_CONTRACTS.md), so e
 
 ## Team workflow
 
-1. Each teammate opens one coding-agent session on their own folder and pastes the matching prompt from `prompts/`.
+0. The designer starts in Figma Make with `prompts/00-figma-design.md` and hands the live-feed frame to the dashboard agent around 14:30.
+1. Each teammate opens one coding-agent session on their own folder and pastes the matching prompt from `prompts/` (01 contract, 02 agent, 03 dashboard).
 2. Every module must run on its own with mocks by **13:00** (`MOCK_CHAIN=true` for the agent, fixtures for the web).
 3. Swap mocks for real parts between **15:00 and 16:00**.
 4. Integration and demo with `prompts/04-integration.md` from 16:00. Submit by **17:30**.

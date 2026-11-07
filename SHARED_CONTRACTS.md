@@ -39,6 +39,7 @@ Base URL: `http://localhost:8787` locally, `NEXT_PUBLIC_AGENT_URL` in the dashbo
 | GET | `/decisions/:invoiceId` | One Decision, including its step trace |
 | GET | `/rules` | Rules object (below) |
 | GET | `/events` | Server-sent events: each message's data is one full Decision (JSON) whenever it changes |
+| POST | `/demo/reset` | Clears stored decisions and `demo/inbox` so the live demo can be rerun; returns `{ "ok": true }` |
 
 Rules object:
 

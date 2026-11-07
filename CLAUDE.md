@@ -19,8 +19,10 @@ Guardia is an autonomous AI agent that pays a small Argentine company's supplier
 ## Module map
 | Folder | What | Prompt |
 | --- | --- | --- |
+| (Figma, not code) | UI/UX design in Figma Make, handed to `web/` | `prompts/00-figma-design.md` |
 | `contracts/` | PolicyVault (Foundry, Arbitrum) | `prompts/01-contract.md` |
 | `agent/` | Autonomous agent service (Node + TS) | `prompts/02-agent.md` |
 | `web/` | Dashboard (Next.js, Vercel) | `prompts/03-web.md` |
 | `demo/` | Demo invoices, run script, README polish | `prompts/04-integration.md` |
+| (pitch, not code) | Deck, script and jury Q&A | `prompts/05-pitch.md` |
 | `shared/` | Decision schema + fixtures (read-only for agents) | - |
