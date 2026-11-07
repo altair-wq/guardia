@@ -120,6 +120,12 @@ export class Pipeline {
         txHash = r.txHash;
         d.txHash = txHash;
         d.explorerUrl = explorerUrl(txHash);
+        if (r.outcome === "reverted") {
+          // Mined but reverted (e.g. AlreadyPaid, slippage): the vault moved nothing.
+          log(`tx reverted: ${txHash}`);
+          step("execute", "failed");
+          return finish("blocked", "execute_failed", { signals: v.signals, detail: "la transacción fue revertida" });
+        }
         step("execute", "done");
         if (r.outcome === "rejected") return finish("rejected_onchain", "rejected_onchain", { signals: v.signals, onchainReason: r.reason });
       } catch (e) {
