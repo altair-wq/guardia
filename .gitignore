@@ -22,3 +22,6 @@ agent/data/
 .DS_Store
 .idea/
 .vscode/
+
+# local agent worktrees
+.claude/
