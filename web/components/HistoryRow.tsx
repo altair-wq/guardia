@@ -6,7 +6,7 @@ import { toneOf, verdictWord } from "@/lib/headline";
 import { cn } from "@/lib/cn";
 
 const ICON = { pass: Check, block: Ban, wall: ShieldX, work: Loader2 } as const;
-const COLOR = { pass: "text-pass-fg", block: "text-block-fg", wall: "text-wall", work: "text-fg-muted" } as const;
+const COLOR = { pass: "text-pass-fg", block: "text-block-fg", wall: "text-wall", work: "text-brand" } as const;
 
 /** One quiet line per earlier decision; the detail page holds everything else. */
 export function HistoryRow({ d }: { d: Decision }) {

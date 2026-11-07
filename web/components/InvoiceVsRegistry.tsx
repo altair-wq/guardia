@@ -2,7 +2,7 @@ import { Check, X } from "lucide-react";
 import type { Decision, Rules, RulesSupplier } from "@/lib/types";
 import { formatMoney, shortAddress } from "@/lib/format";
 import { cn } from "@/lib/cn";
-import { AddressDiff, AddressZoom } from "./AddressDiff";
+import { AddressZoom } from "./AddressDiff";
 
 export function findRegistered(d: Decision, rules: Rules | null): RulesSupplier | undefined {
   if (!rules) return undefined;
@@ -34,8 +34,8 @@ export function InvoiceVsRegistry({ d, rules }: { d: Decision; rules: Rules | nu
     },
     {
       label: "Billetera",
-      invoice: <AddressDiff addr={d.supplier.wallet} against={reg?.wallet} tone={walletOk ? "ok" : "bad"} />,
-      registry: reg ? <span className="break-all font-mono text-sm sm:text-base">{reg.wallet}</span> : "—",
+      invoice: <span className="font-mono text-base" title={d.supplier.wallet}>{shortAddress(d.supplier.wallet, 4, 4)}</span>,
+      registry: reg ? <span className="font-mono text-base" title={reg.wallet}>{shortAddress(reg.wallet, 4, 4)}</span> : "—",
       ok: walletOk,
     },
     {
@@ -55,7 +55,7 @@ export function InvoiceVsRegistry({ d, rules }: { d: Decision; rules: Rules | nu
   return (
     <div>
       <div className="relative overflow-x-auto">
-        <table className="w-full min-w-[520px] border-collapse text-left">
+        <table className="w-full min-w-[480px] border-collapse text-left">
           <caption className="sr-only">Datos de la factura comparados con el registro del proveedor</caption>
           <thead>
             <tr className="border-b border-line text-sm text-fg-muted">
@@ -67,15 +67,15 @@ export function InvoiceVsRegistry({ d, rules }: { d: Decision; rules: Rules | nu
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.label} className={cn("border-b border-line align-top", !r.ok && "bg-block-soft/60")}>
-                <th scope="row" className="py-3 pr-3 text-sm font-semibold text-fg-muted">{r.label}</th>
+              <tr key={r.label} className={cn("border-b border-line align-top", !r.ok && "bg-block-soft/50")}>
+                <th scope="row" className="py-3 pr-3 text-sm font-medium text-fg-muted">{r.label}</th>
                 <td className={cn("py-3 pr-3", !r.ok && "font-semibold text-block-fg")}>{r.invoice}</td>
                 <td className="py-3 pr-3">{r.registry}</td>
                 <td className="py-3">
                   {r.ok ? (
-                    <span className="inline-flex items-center gap-1 text-sm font-semibold text-pass-fg"><Check aria-hidden className="h-4 w-4" />coincide</span>
+                    <span className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-pass-fg"><Check aria-hidden className="h-4 w-4" />coincide</span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 text-sm font-semibold text-block-fg"><X aria-hidden className="h-4 w-4" />no coincide</span>
+                    <span className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-block-fg"><X aria-hidden className="h-4 w-4" />no coincide</span>
                   )}
                 </td>
               </tr>

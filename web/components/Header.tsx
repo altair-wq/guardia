@@ -44,8 +44,8 @@ export function Header({ connection, wide = false }: { connection: ConnectionSta
     <header className="border-b border-line bg-ink-900">
       <div className={`mx-auto flex ${wide ? "max-w-[1180px]" : "max-w-[920px]"} flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6`}>
         <Link href="/" className="flex items-center gap-3 rounded-chip">
-          <ShieldCheck aria-hidden className="h-7 w-7 text-pass" />
-          <span className="font-display text-3xl font-extrabold uppercase leading-none tracking-wide">Guardia</span>
+          <ShieldCheck aria-hidden strokeWidth={2.25} className="h-7 w-7 text-brand" />
+          <span className="text-2xl font-bold leading-none tracking-[-0.02em]">Guardia</span>
         </Link>
         <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
           <ChainBadge />

@@ -23,7 +23,7 @@ export function AddressDiff({ addr, against, tone }: { addr: string; against?: s
   return (
     <span className="break-all font-mono text-sm sm:text-base">
       <span className="text-fg-subtle">{head}</span>
-      <mark className={cn("rounded px-0.5 font-bold", "bg-block text-ink-950")}>{mid}</mark>
+      <mark className={cn("rounded px-0.5 font-bold", "bg-block-soft text-block-fg ring-1 ring-block/40")}>{mid}</mark>
       <span className="text-fg-subtle">{tail}</span>
     </span>
   );
@@ -35,10 +35,10 @@ export function AddressZoom({ invoice, registered }: { invoice: string; register
   const a = short(invoice);
   const b = short(registered);
   const Cell = ({ v, same }: { v: string; same: boolean }) => (
-    <span className={cn("rounded px-1", same ? "text-fg-muted" : "bg-block font-bold text-ink-950")}>{v}</span>
+    <span className={cn("rounded px-1", same ? "text-fg-muted" : "bg-block-soft font-bold text-block-fg ring-1 ring-block/40")}>{v}</span>
   );
   return (
-    <div className="grid gap-2 rounded-chip border border-block/50 bg-ink-950 p-3 font-mono text-2xl tabular sm:text-3xl">
+    <div className="grid gap-2 rounded-chip bg-ink-950 p-4 font-mono text-2xl tabular">
       <div className="flex flex-wrap items-baseline gap-2">
         <span className="w-24 font-sans text-sm font-medium text-fg-muted">Factura</span>
         <Cell v={a.head} same={a.head.toLowerCase() === b.head.toLowerCase()} />

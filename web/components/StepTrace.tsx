@@ -42,11 +42,11 @@ export function StepTrace({ steps }: { steps: Step[] }) {
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-baseline justify-between gap-x-3">
                 <span className="font-semibold">
-                  {STEP_LABEL[s.name]} <span className="font-normal text-fg-muted">· {STEP_STATUS_LABEL[s.status]}</span>
+                  {STEP_LABEL[s.name]}<span className="sr-only">: {STEP_STATUS_LABEL[s.status]}</span>
                 </span>
-                {s.at && <time dateTime={s.at} className="font-mono text-sm text-fg-muted tabular">{formatTime(s.at)}</time>}
+                {s.at && <time dateTime={s.at} className="text-sm text-fg-muted tabular">{formatTime(s.at)}</time>}
               </div>
-              <p className="text-sm text-fg-muted">{describe(s)}</p>
+              <p className="mt-0.5 text-base text-fg-muted">{describe(s)}</p>
             </div>
           </li>
         );

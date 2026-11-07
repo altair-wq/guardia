@@ -3,32 +3,38 @@
 @tailwind utilities;
 
 :root {
-  /* Light, projector-first theme. Names kept from the dark theme so components need no rewrite:
-     ink-950 = page, ink-900 = surface, ink-800/700/600 = progressively stronger neutrals. */
-  --ink-950: 241 243 246;
-  --ink-900: 255 255 255;
-  --ink-800: 232 236 241;
-  --ink-700: 214 220 228;
-  --ink-600: 170 180 194;
-  --fg: 22 27 35;
-  --fg-muted: 84 93 107;
-  --fg-subtle: 112 121 135;
-  --line: 218 223 230;
-  /* pasa: deep celeste-blue */
-  --pass: 31 95 191;
-  --pass-soft: 226 236 251;
-  --pass-fg: 22 74 156;
-  /* no pasa: amber (fill) with a dark amber for text */
-  --block: 230 145 0;
-  --block-soft: 255 242 214;
-  --block-fg: 133 72 0;
-  /* the contract wall */
-  --wall: 196 72 28;
-  --wall-soft: 252 230 220;
-  /* in progress */
-  --work: 112 121 135;
-  --work-soft: 232 236 241;
-  --radius-card: 12px;
+  /* Calm palette, grounded in colour-preference research:
+     - blue is the most liked hue across cultures; dark yellow/olive/brown the least (Palmer & Schloss)
+     - large surfaces are preferred light and desaturated; saturated reds clash (Schloss, Strauss & Palmer)
+     - medium saturation is most pleasant, saturation + brightness raise arousal (Wilms & Oberfeld 2018)
+     So: light blue-grey surfaces, navy ink, one blue brand, analogous teal for "paid",
+     muted rose (not alarm red) for "blocked", dusty plum for "the contract said no".
+     Names kept from the dark theme: ink-950 = page, ink-900 = surface. */
+  --ink-950: 243 246 250;  /* page     #F3F6FA */
+  --ink-900: 255 255 255;  /* surface  #FFFFFF */
+  --ink-800: 234 239 246;
+  --ink-700: 219 227 238;
+  --ink-600: 172 186 206;
+  --fg: 27 42 65;          /* navy ink #1B2A41 */
+  --fg-muted: 90 107 130;  /* #5A6B82 */
+  --fg-subtle: 118 134 156;
+  --line: 221 228 238;     /* #DDE4EE */
+  --brand: 61 104 196;     /* calm blue #3D68C4 */
+  /* pasa: teal-green, analogous to the blue */
+  --pass: 47 143 122;      /* #2F8F7A */
+  --pass-soft: 228 243 239;
+  --pass-fg: 31 107 91;
+  /* no pasa: muted rose */
+  --block: 196 81 90;      /* #C4515A */
+  --block-soft: 251 235 236;
+  --block-fg: 158 58 67;
+  /* the contract wall: dusty plum */
+  --wall: 124 91 166;      /* #7C5BA6 */
+  --wall-soft: 241 236 248;
+  /* in progress: soft blue */
+  --work: 61 104 196;
+  --work-soft: 232 238 248;
+  --radius-card: 16px;
   --radius-chip: 8px;
   color-scheme: light;
 }
@@ -43,7 +49,7 @@ body {
 .tabular { font-variant-numeric: tabular-nums; }
 
 :focus-visible {
-  outline: 3px solid rgb(var(--pass));
+  outline: 3px solid rgb(var(--brand));
   outline-offset: 2px;
   border-radius: 6px;
 }
