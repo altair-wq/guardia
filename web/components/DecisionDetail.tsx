@@ -136,12 +136,6 @@ function Detail({ d, rules }: { d: Decision; rules: ReturnType<typeof useSourceS
                       <dd className="font-mono text-lg tabular">{formatMoney(d.quote.minAmountOut, d.quote.route[d.quote.route.length - 1])}</dd>
                     </div>
                   )}
-                  {d.quote.referenceRate && (
-                    <div>
-                      <dt className="text-fg-muted">Referencia Belo</dt>
-                      <dd className="font-mono text-lg tabular">{d.quote.referenceRate} por ARGt</dd>
-                    </div>
-                  )}
                 </dl>
               </div>
             ) : (
