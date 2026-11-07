@@ -15,7 +15,11 @@ loadEnv({ path: resolve(AGENT_DIR, ".env"), override: true, quiet: true });
 const env = process.env;
 
 export const cfg = {
-  port: Number(env.AGENT_PORT ?? 8787),
+  port: Number(env.PORT || env.AGENT_PORT || 8787),
+  /** Required header x-guardia-key for non-local POSTs (tunnel). Unset = non-local POSTs refused. */
+  apiKey: env.GUARDIA_API_KEY || "",
+  /** Comma-separated CORS origins. Unset = http://localhost:3000 + any https://*.vercel.app. */
+  allowedOrigins: env.ALLOWED_ORIGINS || "",
   mockChain: (env.MOCK_CHAIN ?? "true").toLowerCase() !== "false",
   rpcUrl: env.ARBITRUM_RPC_URL || "https://arb1.arbitrum.io/rpc",
   agentPrivateKey: env.AGENT_PRIVATE_KEY || "",

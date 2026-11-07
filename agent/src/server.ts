@@ -1,6 +1,7 @@
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
-import Fastify from "fastify";
+import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
+import { checkWriteAccess, originAllowed } from "./access.js";
 import { cfg, loadSuppliers } from "./config.js";
 import { createVault } from "./execute.js";
 import { clearInbox, watchInbox } from "./intake.js";
@@ -9,7 +10,10 @@ import { Store } from "./store.js";
 import type { Decision } from "./types.js";
 
 const app = Fastify({ logger: { level: "info" }, bodyLimit: 15 * 1024 * 1024 });
-await app.register(cors, { origin: true });
+await app.register(cors, {
+  origin: (origin, cb) => cb(null, originAllowed(origin, cfg.allowedOrigins)),
+  allowedHeaders: ["content-type", "x-guardia-key"],
+});
 await app.register(multipart, { limits: { fileSize: 15 * 1024 * 1024 } });
 
 const log = (m: string) => app.log.info(m);
@@ -17,8 +21,17 @@ const store = new Store(cfg.dataFile);
 const vault = createVault();
 const pipeline = new Pipeline(store, vault, loadSuppliers, log);
 
+// Mutating endpoints: open from this laptop, key-protected through the tunnel. GETs stay open.
+const guardWrite = async (req: FastifyRequest, reply: FastifyReply) => {
+  const r = checkWriteAccess(req.socket.remoteAddress, req.headers, cfg.apiKey);
+  if (!r.ok) {
+    app.log.warn(`refused ${req.method} ${req.url} from ${req.ip}: ${r.error}`);
+    return reply.code(r.code).send({ error: r.error });
+  }
+};
+
 // --- API (SHARED_CONTRACTS.md section B) -----------------------------------
-app.post("/invoices", async (req, reply) => {
+app.post("/invoices", { preHandler: guardWrite }, async (req, reply) => {
   let buf: Buffer;
   let filename: string;
   if (req.isMultipart()) {
@@ -75,7 +88,7 @@ app.get("/events", (req, reply) => {
   reply.hijack();
 });
 
-app.post("/demo/reset", async () => {
+app.post("/demo/reset", { preHandler: guardWrite }, async () => {
   await pipeline.idle();
   store.reset();
   vault.reset();
@@ -84,7 +97,7 @@ app.post("/demo/reset", async () => {
   return { ok: true };
 });
 
-app.get("/health", async () => ({ ok: true, mockChain: cfg.mockChain }));
+app.get("/health", async () => ({ ok: true, mockChain: cfg.mockChain, vault: vault.address }));
 
 // --- startup -----------------------------------------------------------------
 store.setMaxListeners(100);
@@ -94,6 +107,7 @@ try {
 } catch (e) {
   app.log.error(`could not read vault state: ${(e as Error).message}`);
 }
+log(`API: remote POSTs ${cfg.apiKey ? "need x-guardia-key" : "refused (GUARDIA_API_KEY not set)"}; CORS ${cfg.allowedOrigins || "localhost:3000 + *.vercel.app"}`);
 log(`LLM: ${cfg.llmApiKey ? cfg.llmModel : "disabled (heuristic extractor + template reasons)"}; Firecrawl: ${cfg.firecrawlApiKey ? "on" : "off"}`);
 watchInbox(pipeline.submit, log);
 await app.listen({ port: cfg.port, host: "0.0.0.0" });

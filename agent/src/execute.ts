@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import {
   createWalletClient,
+  encodeFunctionData,
   formatUnits,
   http,
   keccak256,
@@ -16,9 +17,21 @@ import { ADDR, cfg, loadDeployment, loadMockVault, loadSuppliers } from "./confi
 import { publicClient } from "./quote.js";
 
 export interface PayResult {
-  outcome: "executed" | "rejected";
+  /** "reverted": the tx was mined but reverted (e.g. AlreadyPaid, slippage), so nothing moved. */
+  outcome: "executed" | "rejected" | "reverted";
   reason?: string;
   txHash: string;
+}
+
+/**
+ * The tx was broadcast (we have its hash) but no receipt arrived in time. Money MAY have moved:
+ * never report "nothing moved" and never resend. Poll with VaultClient.checkReceipt instead.
+ */
+export class PendingReceiptError extends Error {
+  constructor(readonly txHash: string, cause?: string) {
+    super(`receipt not available for ${txHash}${cause ? `: ${cause}` : ""}`);
+    this.name = "PendingReceiptError";
+  }
 }
 
 export interface VaultState {
@@ -30,13 +43,31 @@ export interface VaultState {
 }
 
 export interface VaultClient {
+  /** Vault address (sync, for /health). */
+  readonly address: string;
+  /** Throws PendingReceiptError when the tx was broadcast but its receipt could not be read. */
   pay(invoiceId: string, supplier: string, amountARGt: string, minAmountOutWei: bigint): Promise<PayResult>;
+  /** One receipt lookup for a broadcast tx: null while it is not mined yet. */
+  checkReceipt(txHash: string): Promise<PayResult | null>;
   state(): Promise<VaultState>;
+  /** Called on POST /demo/reset: clears mock state and rotates the run nonce. */
   reset(): void;
 }
 
 export const explorerUrl = (hash: string) => `https://arbiscan.io/tx/${hash}`;
-export const invoiceIdHash = (invoiceId: string) => keccak256(toBytes(invoiceId));
+
+// ---------------------------------------------------------------------------
+// On-chain invoice ids. PolicyVault marks every id as used (paid OR rejected) and reverts
+// AlreadyPaid on reuse. Local ids (inv_001...) restart whenever agent/data is wiped or demo:once
+// runs with an in-memory store, so the on-chain id mixes in a random nonce per run.
+const newNonce = () => randomBytes(16).toString("hex");
+let runNonce = newNonce();
+export const currentRunNonce = () => runNonce;
+export function rotateRunNonce(): string {
+  runNonce = newNonce();
+  return runNonce;
+}
+export const invoiceIdHash = (invoiceId: string, nonce: string = runNonce) => keccak256(toBytes(`${invoiceId}:${nonce}`));
 
 // ---------------------------------------------------------------------------
 // MOCK_CHAIN=true: same allowlist and caps as config/, applied in memory.
@@ -44,10 +75,18 @@ export class MockVault implements VaultClient {
   private spent = 0;
   private readonly cfg = loadMockVault();
   private readonly allow = new Set(loadSuppliers().map((s) => s.wallet.toLowerCase()));
-  private readonly paid = new Set<string>();
+  /** On-chain ids already used (paid or rejected), like PolicyVault.used. */
+  readonly used = new Set<string>();
+  readonly address = this.cfg.vault;
+
+  constructor(private readonly delayMs = 2000) {}
 
   async pay(invoiceId: string, supplier: string, amountARGt: string): Promise<PayResult> {
-    await new Promise((r) => setTimeout(r, 2000));
+    await new Promise((r) => setTimeout(r, this.delayMs));
+    const id = invoiceIdHash(invoiceId);
+    // Same order as PolicyVault.pay: reuse reverts before any rule is checked, then the id is burnt.
+    if (this.used.has(id)) throw new Error(`AlreadyPaid(${id})`);
+    this.used.add(id);
     const txHash = `0x${randomBytes(32).toString("hex")}`;
     const amount = Number(amountARGt);
     let reason: string | undefined;
@@ -55,10 +94,12 @@ export class MockVault implements VaultClient {
     else if (amount > Number(this.cfg.perPaymentCap)) reason = "over_payment_cap";
     else if (this.spent + amount > Number(this.cfg.dailyCap)) reason = "over_daily_cap";
     if (reason) return { outcome: "rejected", reason, txHash };
-    if (this.paid.has(invoiceId)) throw new Error("invoice already paid");
-    this.paid.add(invoiceId);
     this.spent += amount;
     return { outcome: "executed", txHash };
+  }
+
+  async checkReceipt(): Promise<PayResult | null> {
+    return null; // the mock never leaves a tx pending
   }
 
   async state(): Promise<VaultState> {
@@ -73,19 +114,14 @@ export class MockVault implements VaultClient {
 
   reset(): void {
     this.spent = 0;
-    this.paid.clear();
+    this.used.clear();
+    rotateRunNonce();
   }
 }
 
 // ---------------------------------------------------------------------------
 // MOCK_CHAIN=false: PolicyVault on Arbitrum, address + ABI from contracts/deployments/arbitrum.json.
 const ERC20 = parseAbi(["function balanceOf(address) view returns (uint256)"]);
-
-function isRpcError(e: unknown): boolean {
-  const name = (e as { name?: string })?.name ?? "";
-  // Contract reverts are deterministic: retrying will not help.
-  return !/ContractFunctionRevertedError|ContractFunctionExecutionError/.test(name);
-}
 
 export class LiveVault implements VaultClient {
   private readonly dep = loadDeployment();
@@ -103,18 +139,33 @@ export class LiveVault implements VaultClient {
     }
   }
 
-  async pay(invoiceId: string, supplier: string, amountARGt: string, minAmountOutWei: bigint): Promise<PayResult> {
-    const args = [invoiceIdHash(invoiceId), supplier as `0x${string}`, parseUnits(amountARGt, 18), minAmountOutWei] as const;
-    const send = () =>
-      this.wallet.writeContract({ address: this.dep.policyVault, abi: this.abi, functionName: "pay", args, chain: arbitrum });
+  readonly address: string = this.dep.policyVault;
 
-    let hash: `0x${string}`;
+  async pay(invoiceId: string, supplier: string, amountARGt: string, minAmountOutWei: bigint): Promise<PayResult> {
+    const onchainId = invoiceIdHash(invoiceId);
+    console.log(`[vault] ${invoiceId} -> on-chain id ${onchainId} (run nonce ${currentRunNonce()})`);
+    const args = [onchainId, supplier as `0x${string}`, parseUnits(amountARGt, 18), minAmountOutWei] as const;
+    const data = encodeFunctionData({ abi: this.abi, functionName: "pay", args });
+
+    // Prepare (nonce, gas: a revert here means nothing was broadcast) and sign locally, so the
+    // hash is known before broadcasting and a retry rebroadcasts the SAME signed tx, never a new one.
+    const request = await this.wallet.prepareTransactionRequest({ account: this.account, to: this.dep.policyVault, data, chain: arbitrum });
+    const serializedTransaction = await this.wallet.signTransaction(request as Parameters<typeof this.wallet.signTransaction>[0]);
+    const hash = keccak256(serializedTransaction);
     try {
-      hash = await send();
+      await this.wallet.sendRawTransaction({ serializedTransaction });
     } catch (e) {
-      if (!isRpcError(e)) throw e;
-      console.warn(`[vault] pay send failed, retrying once: ${(e as Error).message.split("\n")[0]}`);
-      hash = await send();
+      console.warn(`[vault] broadcast failed, rebroadcasting the same signed tx once: ${(e as Error).message.split("\n")[0]}`);
+      try {
+        await this.wallet.sendRawTransaction({ serializedTransaction });
+      } catch (e2) {
+        const msg = (e2 as Error).message;
+        // The node already has it: the first broadcast went through.
+        if (!/already known|known transaction|nonce too low|already imported/i.test(msg)) {
+          const seen = await publicClient.getTransaction({ hash }).catch(() => null);
+          if (!seen) throw e2; // never reached the network: nothing moved
+        }
+      }
     }
 
     const wait = () => publicClient.waitForTransactionReceipt({ hash, timeout: 60_000 });
@@ -123,11 +174,23 @@ export class LiveVault implements VaultClient {
       receipt = await wait();
     } catch (e) {
       console.warn(`[vault] receipt wait failed, retrying once: ${(e as Error).message.split("\n")[0]}`);
-      receipt = await wait(); // only re-wait: never resend a tx that may already be mined
+      try {
+        receipt = await wait(); // only re-wait: never resend a tx that may already be mined
+      } catch (e2) {
+        throw new PendingReceiptError(hash, (e2 as Error).message.split("\n")[0]);
+      }
     }
-    if (receipt.status !== "success") throw new Error(`tx reverted (${hash})`);
+    return this.decode(receipt, hash);
+  }
 
-    const logs = parseEventLogs({ abi: this.abi, logs: receipt.logs }) as unknown as {
+  async checkReceipt(txHash: string): Promise<PayResult | null> {
+    const receipt = await publicClient.getTransactionReceipt({ hash: txHash as `0x${string}` }).catch(() => null);
+    return receipt ? this.decode(receipt, txHash) : null;
+  }
+
+  private decode(receipt: { status: string; logs: unknown[] }, hash: string): PayResult {
+    if (receipt.status !== "success") return { outcome: "reverted", txHash: hash };
+    const logs = parseEventLogs({ abi: this.abi, logs: receipt.logs as never }) as unknown as {
       eventName: string;
       args: Record<string, unknown>;
     }[];
@@ -165,7 +228,8 @@ export class LiveVault implements VaultClient {
   }
 
   reset(): void {
-    // On-chain state cannot be reset; the daily cap rolls over on its own.
+    // On-chain state cannot be reset (the daily cap rolls over on its own); only the run nonce changes.
+    rotateRunNonce();
   }
 }
 

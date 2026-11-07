@@ -100,16 +100,18 @@ const MOCK_BRAt_PER_ARGt = 0.0033;
 export async function quote(amountARGt: string, payToken: Currency, log: (m: string) => void): Promise<QuoteResult> {
   if (payToken === "ARGt") {
     const wei = parseUnits(amountARGt, DEC.ARGt);
-    return { quote: { route: ["ARGt"], amountOut: amountARGt, source: "curve", minAmountOut: amountARGt }, minAmountOutWei: wei };
+    return { quote: { route: ["ARGt"], amountOut: amountARGt, source: "direct", minAmountOut: amountARGt }, minAmountOutWei: wei };
   }
   if (payToken !== "BRAt") throw new Error(`no route for ${payToken}`);
 
   const belo = beloReferenceRate(log);
   let expected: bigint;
   let min: bigint;
+  let curveOk = true;
   try {
     ({ expected, min } = await curveQuoteARGtToBRAt(amountARGt));
   } catch (e) {
+    curveOk = false;
     if (!cfg.mockChain) throw e;
     log(`curve quote failed in mock mode, using fixed rate: ${(e as Error).message}`);
     expected = parseUnits((Number(amountARGt) * MOCK_BRAt_PER_ARGt).toFixed(18), DEC.BRAt);
@@ -119,7 +121,8 @@ export async function quote(amountARGt: string, payToken: Currency, log: (m: str
   const q: Quote = {
     route: ["ARGt", "USDT0", "BRAt"],
     amountOut: Number(formatUnits(expected, DEC.BRAt)).toFixed(2),
-    source: ref ? "belo-price-api" : "curve",
+    // The amount always comes from Curve get_dy (or the mock fixed rate); Belo is only a reference.
+    source: curveOk ? "curve" : "mock-fixed-rate",
     minAmountOut: Number(formatUnits(min, DEC.BRAt)).toFixed(2),
   };
   if (ref) q.referenceRate = ref.toPrecision(6);
