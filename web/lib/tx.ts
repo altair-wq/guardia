@@ -1,15 +1,16 @@
 import type { Decision, Quote, Step } from "./types";
-import { USE_FIXTURES } from "./source";
+import { chainIsSimulated } from "./source";
 
 /** shared/fixtures use fake tx hashes starting with this prefix. */
 export const FIXTURE_HASH_PREFIX = "0xf100";
 
 /**
  * A transaction is simulated (no real Arbiscan page) when the fixtures source is active,
- * the agent fell back to its mock fixed rate, or the hash is a fixture hash.
+ * the agent runs MOCK_CHAIN (per GET /health), the agent fell back to its mock fixed rate,
+ * or the hash is a fixture hash.
  */
 export function isSimulatedTx(d: Pick<Decision, "quote" | "txHash">): boolean {
-  if (USE_FIXTURES) return true;
+  if (chainIsSimulated()) return true;
   if (d.quote?.source === "mock-fixed-rate") return true;
   return !!d.txHash && d.txHash.toLowerCase().startsWith(FIXTURE_HASH_PREFIX);
 }
@@ -49,4 +50,18 @@ export function referenceLine(q: Quote): string | null {
   const token = target && target !== "ARGt" ? target : "BRAt";
   const n = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 }).format(1 / r);
   return `Referencia Belo: 1 ${token} ≈ ${n} ARGt`;
+}
+
+/**
+ * FX snapshot locked at execution: how many ARGt one unit of the pay token cost, from the agent's quote.
+ * Time = when the execute step ran (or the quote was taken at verify), else when the invoice arrived.
+ */
+export function fxSnapshot(d: Pick<Decision, "amount" | "quote" | "steps" | "receivedAt">): { target: string; argtPerUnit: number; at: string } | null {
+  const q = d.quote;
+  if (!q || q.route.length < 2) return null;
+  const out = Number(q.amountOut);
+  const inn = Number(d.amount.value);
+  if (!(out > 0) || !(inn > 0)) return null;
+  const at = d.steps.find((s) => s.name === "execute")?.at ?? d.steps.find((s) => s.name === "verify")?.at ?? d.receivedAt;
+  return { target: q.route[q.route.length - 1], argtPerUnit: inn / out, at };
 }

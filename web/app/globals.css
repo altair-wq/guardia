@@ -3,33 +3,39 @@
 @tailwind utilities;
 
 :root {
-  /* ink: near-black, blue-tinted */
-  --ink-950: 7 10 18;
-  --ink-900: 12 16 28;
-  --ink-800: 19 25 42;
-  --ink-700: 30 38 60;
-  --ink-600: 48 58 86;
-  --fg: 238 241 248;
-  --fg-muted: 172 182 204;
-  --fg-subtle: 134 146 172;
-  --line: 40 49 74;
-  /* pasa: electric blue */
-  --pass: 77 148 255;
-  --pass-soft: 20 40 82;
-  --pass-fg: 150 194 255;
-  /* no pasa: amber */
-  --block: 255 176 32;
-  --block-soft: 66 44 10;
-  --block-fg: 255 204 112;
-  /* the contract wall */
-  --wall: 255 138 76;
-  --wall-soft: 70 32 18;
+  /* Institutional fintech palette (team design brief, Nov 7):
+     slate canvas, white cards, navy authority, sky blue as the Argentine touch for live/AI states.
+     Names kept from the dark theme: ink-950 = canvas, ink-900 = card. */
+  --ink-950: 248 250 252;  /* canvas  #F8FAFC slate-50 */
+  --ink-900: 255 255 255;  /* card    #FFFFFF */
+  --ink-800: 241 245 249;  /* #F1F5F9 */
+  --ink-700: 226 232 240;  /* #E2E8F0 */
+  --ink-600: 203 213 225;  /* #CBD5E1 */
+  --fg: 15 23 42;          /* #0F172A slate-900 */
+  --fg-muted: 71 85 105;   /* #475569 */
+  --fg-subtle: 100 116 139;/* #64748B */
+  --line: 226 232 240;     /* #E2E8F0 */
+  --brand: 30 64 175;      /* deep navy #1E40AF */
+  --sky: 14 165 233;       /* Argentine sky #0EA5E9 */
+  --sim: 124 58 237;       /* simulation purple #7C3AED */
+  --sim-soft: 245 243 255;
+  /* paid */
+  --pass: 4 120 87;        /* #047857 */
+  --pass-soft: 236 253 245;/* #ECFDF5 */
+  --pass-fg: 4 120 87;
+  /* blocked / fraud */
+  --block: 190 18 60;      /* #BE123C */
+  --block-soft: 255 241 242;/* #FFF1F2 */
+  --block-fg: 190 18 60;
+  /* rejected by the contract */
+  --wall: 159 18 57;       /* #9F1239 */
+  --wall-soft: 255 228 230;
   /* in progress */
-  --work: 196 206 228;
-  --work-soft: 34 42 64;
+  --work: 30 64 175;
+  --work-soft: 239 246 255;
   --radius-card: 14px;
   --radius-chip: 8px;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html { background: rgb(var(--ink-950)); }
@@ -40,9 +46,10 @@ body {
 }
 
 .tabular { font-variant-numeric: tabular-nums; }
+.shadow-card { box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px -12px rgb(15 23 42 / 0.10); }
 
 :focus-visible {
-  outline: 3px solid rgb(var(--pass));
+  outline: 3px solid rgb(var(--brand));
   outline-offset: 2px;
   border-radius: 6px;
 }

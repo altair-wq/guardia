@@ -1,6 +1,7 @@
 import { Check } from "lucide-react";
 import type { RulesSupplier } from "@/lib/types";
 import { shortAddress } from "@/lib/format";
+import { TokenBadge } from "./TokenBadge";
 
 export function SupplierRow({ s }: { s: RulesSupplier }) {
   return (
@@ -14,9 +15,9 @@ export function SupplierRow({ s }: { s: RulesSupplier }) {
           {shortAddress(s.wallet)}
         </div>
       </div>
-      <div className="flex shrink-0 gap-1.5 font-mono text-xs">
+      <div className="flex shrink-0 items-center gap-1.5 font-mono text-xs">
         <span className="rounded-chip border border-line px-1.5 py-0.5 text-fg-muted">{s.country}</span>
-        <span className="rounded-chip border border-line px-1.5 py-0.5 text-fg">{s.payToken}</span>
+        <TokenBadge token={s.payToken} className="text-xs" />
       </div>
     </li>
   );

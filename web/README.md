@@ -44,7 +44,8 @@ Later, live data:
 
 1. Start the agent and its tunnel (`agent/scripts/tunnel.sh`) and copy the `https://…` URL.
 2. Project → Settings → Environment Variables: `NEXT_PUBLIC_USE_FIXTURES` = `false`, `NEXT_PUBLIC_AGENT_URL` = `<tunnel https URL>` (no trailing slash needed).
-3. Deployments → Redeploy (the `NEXT_PUBLIC_*` vars are inlined at build time, so a redeploy is required after every change, including a new tunnel URL).
+3. Deployments → Redeploy (the `NEXT_PUBLIC_*` vars are inlined at build time).
+   **New tunnel URL? No redeploy needed:** open `https://<your-app>.vercel.app/?agent=https://xxxx.trycloudflare.com` once in the presenting browser. The dashboard remembers it (localStorage) and uses it on every reload. `?agent=default` goes back to `NEXT_PUBLIC_AGENT_URL`. Only `https://` URLs or a local `http://localhost` agent are accepted.
 4. The agent's default `ALLOWED_ORIGINS` already allows `https://*.vercel.app`. The R reset from a non-local origin needs `x-guardia-key`, which the dashboard does not send: on Vercel it shows "Reset bloqueado: hace falta la clave del agente" and keeps the feed. Reset from the laptop dashboard (localhost) instead.
 
 Checks: `npm run lint` (TypeScript check; Next 16 removed `next lint`) and `NEXT_PUBLIC_USE_FIXTURES=true npm run build`. `next/font/google` downloads fonts at build time, so the build needs internet access to fonts.googleapis.com (Vercel has it).
@@ -55,6 +56,8 @@ Checks: `npm run lint` (TypeScript check; Next 16 removed `next lint`) and `NEXT
 - Simulated tx (fixtures mode, `mock-fixed-rate`, or a `0xf100…` fixture hash): "Transacción simulada" badge, no Arbiscan link. Real tx: "Ver en Arbiscan ↗".
 - `processing` + `txHash`: "Pago enviado, esperando confirmación en la red" with a pulsing dot and the tx link; the execute step shows as running.
 - Blocked for currency (reason mentions "moneda"): no conversion shown, the reason stays the headline, plus a "moneda no aceptada" chip. Paid/protected stats only add ARGt amounts.
+- Header badge (from `GET /health`): "Modo demo: datos simulados" (fixtures), "Agente real · cadena simulada" (agent on `MOCK_CHAIN=true`; every tx shows "Transacción simulada", never a fake Arbiscan link), "Onchain · Arbitrum One" (real chain).
+- If refreshing `/rules` fails while the event stream is live, the dashboard keeps the last known rules and shows a warning instead of presenting stale data as current.
 
 ## Structure
 

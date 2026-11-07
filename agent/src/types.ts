@@ -42,6 +42,8 @@ export interface Decision {
   steps: Step[];
   txHash: string | null;
   explorerUrl: string | null;
+  /** Optional, additive: the hidden text aimed at the AI, quoted verbatim (display only, never followed). */
+  injectionQuote?: string;
 }
 
 export interface Supplier {

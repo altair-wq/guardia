@@ -5,10 +5,13 @@ import fixtureRules from "@/fixtures/rules.json";
 export interface SourceState {
   decisions: Decision[]; // newest first
   rules: Rules | null;
+  rulesError: string | null;
   connection: ConnectionState;
   error: string | null;
   /** Short-lived message for the presenter (e.g. reset refused). Cleared automatically. */
   notice: string | null;
+  /** From GET /health: true = agent runs MOCK_CHAIN (simulated txs), false = real Arbitrum, null = unknown. */
+  mockChain: boolean | null;
 }
 
 export interface DataSource {
@@ -23,9 +26,51 @@ export interface DataSource {
 }
 
 export const USE_FIXTURES = process.env.NEXT_PUBLIC_USE_FIXTURES !== "false";
-export const AGENT_URL = (process.env.NEXT_PUBLIC_AGENT_URL || "http://localhost:8787").replace(/\/$/, "");
+const ENV_AGENT_URL = (process.env.NEXT_PUBLIC_AGENT_URL || "http://localhost:8787").replace(/\/$/, "");
+const AGENT_URL_KEY = "guardia.agentUrl";
 
-const EMPTY: SourceState = { decisions: [], rules: null, connection: "connecting", error: null, notice: null };
+/** Only https URLs (tunnels) or a local agent are accepted as an override. */
+function cleanAgentUrl(raw: string): string | null {
+  try {
+    const u = new URL(raw);
+    const local = u.hostname === "localhost" || u.hostname === "127.0.0.1";
+    if (u.protocol !== "https:" && !(local && u.protocol === "http:")) return null;
+    return u.origin;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Agent base URL. A Cloudflare quick tunnel gets a new URL on every restart, so instead of
+ * redeploying Vercel the presenter can open `/?agent=https://xxxx.trycloudflare.com` once:
+ * it is remembered in this browser. `/?agent=default` goes back to NEXT_PUBLIC_AGENT_URL.
+ */
+export function resolveAgentUrl(): string {
+  if (typeof window === "undefined") return ENV_AGENT_URL;
+  try {
+    const param = new URLSearchParams(window.location.search).get("agent");
+    if (param === "default") window.localStorage.removeItem(AGENT_URL_KEY);
+    else if (param) {
+      const clean = cleanAgentUrl(param);
+      if (clean) window.localStorage.setItem(AGENT_URL_KEY, clean);
+    }
+    const saved = window.localStorage.getItem(AGENT_URL_KEY);
+    return (saved && cleanAgentUrl(saved)) || ENV_AGENT_URL;
+  } catch {
+    return ENV_AGENT_URL;
+  }
+}
+
+const EMPTY: SourceState = {
+  decisions: [],
+  rules: null,
+  rulesError: null,
+  connection: "connecting",
+  error: null,
+  notice: null,
+  mockChain: null,
+};
 
 abstract class BaseSource implements DataSource {
   abstract readonly kind: "fixtures" | "live";
@@ -66,7 +111,7 @@ abstract class BaseSource implements DataSource {
 // Every 6 s the next decision (oldest first) arrives as `processing`, its steps
 // advance one per second, then it lands on its final status.
 // ---------------------------------------------------------------------------
-const ARRIVAL_MS = 6000;
+const ARRIVAL_MS = 11000; // leaves each final verdict on screen for ~6 s
 const STEP_MS = 1000;
 
 export class FixtureSource extends BaseSource {
@@ -184,7 +229,7 @@ export class LiveSource extends BaseSource {
   private retry = 0;
   private retryTimer: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(private readonly base: string) {
+  constructor(readonly base: string) {
     super();
   }
 
@@ -200,9 +245,21 @@ export class LiveSource extends BaseSource {
 
   async refreshRules() {
     try {
-      this.set({ rules: await this.json<Rules>("/rules") });
+      this.set({ rules: await this.json<Rules>("/rules"), rulesError: null });
+    } catch (error) {
+      this.set({
+        rulesError: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  /** Non-fatal: an older agent without /health just leaves mockChain unknown. */
+  private async refreshHealth() {
+    try {
+      const h = await this.json<{ ok?: boolean; mockChain?: boolean }>("/health");
+      this.set({ mockChain: typeof h.mockChain === "boolean" ? h.mockChain : null });
     } catch {
-      /* keep last known rules */
+      /* keep previous value */
     }
   }
 
@@ -214,7 +271,13 @@ export class LiveSource extends BaseSource {
         this.json<Decision[]>("/decisions"),
         this.json<Rules>("/rules"),
       ]);
-      this.set({ decisions: [...decisions].sort((a, b) => b.receivedAt.localeCompare(a.receivedAt)), rules, error: null });
+      void this.refreshHealth();
+      this.set({
+        decisions: [...decisions].sort((a, b) => b.receivedAt.localeCompare(a.receivedAt)),
+        rules,
+        rulesError: null,
+        error: null,
+      });
     } catch (e) {
       this.set({ error: (e as Error).message });
       return this.scheduleReconnect();
@@ -294,6 +357,17 @@ export class LiveSource extends BaseSource {
 
 let singleton: DataSource | null = null;
 export function getSource(): DataSource {
-  if (!singleton) singleton = USE_FIXTURES ? new FixtureSource() : new LiveSource(AGENT_URL);
+  if (!singleton) singleton = USE_FIXTURES ? new FixtureSource() : new LiveSource(resolveAgentUrl());
   return singleton;
+}
+
+/** True when tx hashes cannot exist on Arbiscan: fixtures replay or an agent on MOCK_CHAIN. */
+export function chainIsSimulated(): boolean {
+  if (USE_FIXTURES) return true;
+  return singleton?.getState().mockChain === true;
+}
+
+/** Base URL the live source talks to (for the footer / debugging). */
+export function activeAgentUrl(): string | null {
+  return singleton instanceof LiveSource ? singleton.base : null;
 }

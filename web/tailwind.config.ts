@@ -38,9 +38,12 @@ const config: Config = {
           soft: "rgb(var(--work-soft) / <alpha-value>)",
         },
         line: "rgb(var(--line) / <alpha-value>)",
+        brand: "rgb(var(--brand) / <alpha-value>)",
+        sky: { DEFAULT: "rgb(var(--sky) / <alpha-value>)" },
+        sim: { DEFAULT: "rgb(var(--sim) / <alpha-value>)", soft: "rgb(var(--sim-soft) / <alpha-value>)" },
       },
       fontFamily: {
-        display: ["var(--font-display)", "Arial Narrow", "sans-serif"],
+        display: ["var(--font-sans)", "system-ui", "sans-serif"],
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },

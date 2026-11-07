@@ -17,7 +17,7 @@ const FILL: Record<StepStatus, string> = {
 
 const BAR: Record<StepStatus, string> = {
   pending: "bg-transparent",
-  running: "bg-work",
+  running: "bg-sky",
   done: "bg-pass",
   skipped: "bg-ink-600",
   failed: "bg-block",

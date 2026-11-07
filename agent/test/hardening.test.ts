@@ -5,8 +5,10 @@ import { heuristicExtract, normalizeCurrency, totalLine } from "../src/extract.j
 import { Pipeline } from "../src/pipeline.js";
 import { Store } from "../src/store.js";
 import type { Decision, Supplier } from "../src/types.js";
+import { loadSuppliers } from "../src/config.js";
 
-const AR: Supplier = { name: "Insumos del Litoral SRL", country: "AR", wallet: "0xd02b000000000000000000000000000000005f71", payToken: "ARGt", avgAmount: "900000" };
+// The mock vault allowlists config/suppliers.json, so use the real AR wallet from there.
+const AR: Supplier = loadSuppliers().find((s) => s.country === "AR")!;
 const invoice = (total: string) =>
   Buffer.from(`FACTURA N° 0002-00000415\nProveedor: Insumos del Litoral SRL\nBilletera: ${AR.wallet}\nTotal a pagar: ${total}\n`);
 
