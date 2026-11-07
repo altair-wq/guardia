@@ -11,6 +11,28 @@ import { HistoryRow } from "./HistoryRow";
 import { NowPanel } from "./NowPanel";
 import { RulesPanel } from "./RulesPanel";
 
+/** Ramp-style limit meter: how much of today's on-chain cap the agent has used. */
+function DailyMeter({ spent, cap }: { spent: number; cap: number }) {
+  const pct = cap > 0 ? Math.min(100, Math.round((spent / cap) * 100)) : 0;
+  return (
+    <span className="mt-3 flex max-w-md items-center gap-3">
+      <span
+        role="meter"
+        aria-label="Tope diario usado"
+        aria-valuenow={pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        className="h-2 flex-1 overflow-hidden rounded-full bg-ink-800"
+      >
+        <span className="block h-full rounded-full bg-brand transition-[width] duration-700" style={{ width: `${pct}%` }} />
+      </span>
+      <span className="whitespace-nowrap text-sm tabular text-fg-muted">
+        {pct}% del tope diario de {formatMoney(cap, "ARGt")}
+      </span>
+    </span>
+  );
+}
+
 function TodaySentence({ stats }: { stats: Stats }) {
   const paid = stats.paidToday > 0 ? `pagó ${formatMoney(stats.paidToday, "ARGt")}` : "todavía no pagó nada";
   const n = stats.blockedCount;
@@ -77,6 +99,7 @@ export function LiveFeed() {
                   ? `Hasta ${formatMoney(rules.perPaymentCap, "ARGt")} por pago, solo a ${rules.suppliers.length} proveedores de la lista.`
                   : "Cargando reglas…"}
               </span>
+              {rules && <DailyMeter spent={Number(rules.spentToday)} cap={Number(rules.dailyCap)} />}
             </span>
             <ChevronDown aria-hidden className="h-5 w-5 shrink-0 text-fg-muted transition-transform group-open:rotate-180" />
           </summary>

@@ -2,7 +2,6 @@
 import { Lock } from "lucide-react";
 import type { Rules } from "@/lib/types";
 import { formatMoney, shortAddress } from "@/lib/format";
-import { CapBar } from "./CapBar";
 import { SupplierRow } from "./SupplierRow";
 
 export function RulesPanel({ rules, error }: { rules: Rules | null; error: string | null }) {
@@ -38,9 +37,6 @@ export function RulesPanel({ rules, error }: { rules: Rules | null; error: strin
             </div>
           </dl>
 
-          <div className="mt-4">
-            <CapBar label="Tope diario" used={Number(rules.spentToday)} cap={Number(rules.dailyCap)} currency="ARGt" />
-          </div>
 
           <h3 className="mt-5 text-lg font-semibold">
             Proveedores habilitados <span className="text-base font-normal text-fg-muted">({rules.suppliers.length})</span>

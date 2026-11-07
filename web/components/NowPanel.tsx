@@ -1,13 +1,15 @@
 "use client";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { Ban, CheckCircle2, Loader2, ShieldX } from "lucide-react";
+import { ArrowRight, Ban, CheckCircle2, Loader2, ShieldX } from "lucide-react";
 import type { Decision } from "@/lib/types";
 import { countryName, formatMoney, formatTime } from "@/lib/format";
 import { headline, toneOf, verdictWord, type Tone } from "@/lib/headline";
 import { displaySteps } from "@/lib/tx";
 import { cn } from "@/lib/cn";
 import { StepTracker } from "./StepTracker";
+import { CheckList } from "./CheckList";
+import { checksFor } from "@/lib/checks";
 import { TxLink } from "./TxLink";
 
 const BAND: Record<Tone, string> = {
@@ -32,6 +34,8 @@ export function NowPanel({ d, full = false }: { d: Decision; full?: boolean }) {
   const sub =
     d.status === "rejected_onchain" ? "Intento de pago directo al contrato" : `${countryName(d.supplier.country)}, cobra en ${d.supplier.currency}`;
   const Title = full ? "h1" : "h2";
+  const checks = checksFor(d);
+  const out = d.quote && d.quote.route.length > 1 ? d.quote : null;
 
   return (
     <article aria-labelledby={`v-${d.invoiceId}`} className="overflow-hidden rounded-card border border-line bg-ink-900">
@@ -58,12 +62,26 @@ export function NowPanel({ d, full = false }: { d: Decision; full?: boolean }) {
             <Title className="text-2xl font-semibold leading-tight tracking-[-0.01em]">{who}</Title>
             <p className="mt-1 text-base text-fg-muted">{sub}</p>
           </div>
-          <p className={cn("text-2xl font-semibold leading-tight tabular", stopped && "text-fg-subtle line-through decoration-1")}>
-            {formatMoney(d.amount.value, d.amount.currency)}
-          </p>
+          <div className="sm:text-right">
+            <p className={cn("text-2xl font-semibold leading-tight tabular", stopped && "text-fg-subtle line-through decoration-1")}>
+              {formatMoney(d.amount.value, d.amount.currency)}
+            </p>
+            {out && !stopped && (
+              <p className="mt-1 text-base tabular text-fg-muted">
+                <ArrowRight aria-label="se convierte en" className="mr-1 inline h-4 w-4 align-[-2px]" />
+                {formatMoney(out.amountOut, out.route[out.route.length - 1])}
+              </p>
+            )}
+          </div>
         </div>
 
         <p className="mt-5 max-w-[52ch] text-xl leading-relaxed text-fg">{full ? d.reason : headline(d)}</p>
+
+        {checks && (
+          <div className="mt-5">
+            <CheckList checks={checks} />
+          </div>
+        )}
 
         {inFlight && (
           <div className="mt-6 max-w-xl">

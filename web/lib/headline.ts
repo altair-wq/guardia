@@ -1,5 +1,4 @@
 import type { Decision, Signal } from "./types";
-import { formatMoney } from "./format";
 import { isAwaitingConfirmation, isCurrencyBlock } from "./tx";
 
 // One short sentence per decision for the feed. The full reason stays on the detail page.
@@ -38,11 +37,8 @@ export function headline(d: Decision): string {
   if (d.status === "rejected_onchain") return "El contrato frenó un pago a una dirección fuera de la lista.";
   if (d.status === "paid") {
     const q = d.quote;
-    if (q && q.route.length > 1) {
-      const target = q.route[q.route.length - 1];
-      return `Le llegaron ${formatMoney(q.amountOut, target)} al proveedor.`;
-    }
-    return "Proveedor verificado. Pago hecho en ARGt.";
+    if (q && q.route.length > 1) return "Proveedor verificado. Pagado en reales, convertido en Curve.";
+    return "Proveedor verificado. Pagado directo en ARGt.";
   }
   if (isCurrencyBlock(d)) return "La factura está en una moneda que no pagamos.";
   const hit = SIGNAL_HEADLINE.find(([s]) => d.risk.signals.includes(s));
