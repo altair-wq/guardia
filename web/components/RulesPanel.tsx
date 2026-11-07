@@ -7,11 +7,8 @@ import { SupplierRow } from "./SupplierRow";
 
 export function RulesPanel({ rules, error }: { rules: Rules | null; error: string | null }) {
   return (
-    <section aria-labelledby="rules-title" className="rounded-card border border-line bg-ink-900 p-4 sm:p-5">
-      <h2 id="rules-title" className="font-display text-2xl font-bold uppercase tracking-wide">
-        Las reglas del dueño
-      </h2>
-      <p className="text-sm text-fg-muted">
+    <section aria-label="Reglas del dueño" className="p-5">
+      <p className="max-w-[60ch] text-base text-fg-muted">
         Viven en el contrato PolicyVault. Aunque alguien engañe a la IA, la plata no sale fuera de estas reglas.
       </p>
 
@@ -32,12 +29,12 @@ export function RulesPanel({ rules, error }: { rules: Rules | null; error: strin
         <>
           <dl className="mt-4 grid grid-cols-2 gap-3">
             <div className="rounded-chip bg-ink-800 px-3 py-2">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-fg-muted">Saldo del vault</dt>
-              <dd className="mt-0.5 font-display text-2xl font-bold tabular">{formatMoney(rules.balance.value, rules.balance.currency)}</dd>
+              <dt className="text-sm font-medium text-fg-muted">Saldo del vault</dt>
+              <dd className="mt-0.5 text-xl font-semibold tabular">{formatMoney(rules.balance.value, rules.balance.currency)}</dd>
             </div>
             <div className="rounded-chip bg-ink-800 px-3 py-2">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-fg-muted">Tope por pago</dt>
-              <dd className="mt-0.5 font-display text-2xl font-bold tabular">{formatMoney(rules.perPaymentCap, "ARGt")}</dd>
+              <dt className="text-sm font-medium text-fg-muted">Tope por pago</dt>
+              <dd className="mt-0.5 text-xl font-semibold tabular">{formatMoney(rules.perPaymentCap, "ARGt")}</dd>
             </div>
           </dl>
 
@@ -45,8 +42,8 @@ export function RulesPanel({ rules, error }: { rules: Rules | null; error: strin
             <CapBar label="Tope diario" used={Number(rules.spentToday)} cap={Number(rules.dailyCap)} currency="ARGt" />
           </div>
 
-          <h3 className="mt-5 font-display text-xl font-bold uppercase tracking-wide">
-            La lista <span className="font-sans text-sm font-normal normal-case text-fg-muted">· {rules.suppliers.length} proveedores habilitados</span>
+          <h3 className="mt-5 text-lg font-semibold">
+            Proveedores habilitados <span className="text-base font-normal text-fg-muted">({rules.suppliers.length})</span>
           </h3>
           <ul className="divide-y divide-line">
             {rules.suppliers.map((s) => (

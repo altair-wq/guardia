@@ -12,7 +12,7 @@ export function InjectionBlock({ d }: { d: Decision }) {
   const line = maliciousLine(d);
   return (
     <section aria-labelledby="inj-title" className="rounded-card border-2 border-block bg-block-soft p-4 sm:p-5">
-      <h2 id="inj-title" className="flex items-center gap-2 font-display text-xl font-bold uppercase tracking-wide text-block-fg">
+      <h2 id="inj-title" className="flex items-center gap-2 text-xl font-semibold text-block-fg">
         <ScanEye aria-hidden className="h-5 w-5" />
         Instrucciones ocultas para la IA
       </h2>

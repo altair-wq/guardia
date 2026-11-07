@@ -40,13 +40,13 @@ export function AddressZoom({ invoice, registered }: { invoice: string; register
   return (
     <div className="grid gap-2 rounded-chip border border-block/50 bg-ink-950 p-3 font-mono text-2xl tabular sm:text-3xl">
       <div className="flex flex-wrap items-baseline gap-2">
-        <span className="w-24 font-sans text-xs font-semibold uppercase tracking-wide text-fg-muted">Factura</span>
+        <span className="w-24 font-sans text-sm font-medium text-fg-muted">Factura</span>
         <Cell v={a.head} same={a.head.toLowerCase() === b.head.toLowerCase()} />
         <span className="text-fg-subtle">…</span>
         <Cell v={a.tail} same={a.tail.toLowerCase() === b.tail.toLowerCase()} />
       </div>
       <div className="flex flex-wrap items-baseline gap-2">
-        <span className="w-24 font-sans text-xs font-semibold uppercase tracking-wide text-fg-muted">Registrada</span>
+        <span className="w-24 font-sans text-sm font-medium text-fg-muted">Registrada</span>
         <span className="rounded px-1 text-pass-fg">{b.head}</span>
         <span className="text-fg-subtle">…</span>
         <span className="rounded px-1 text-pass-fg">{b.tail}</span>

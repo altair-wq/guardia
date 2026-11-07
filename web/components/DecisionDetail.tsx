@@ -25,7 +25,7 @@ function Panel({ title, children, className }: { title: string; children: React.
   const id = `p-${title.replace(/\W+/g, "-").toLowerCase()}`;
   return (
     <section aria-labelledby={id} className={cn("rounded-card border border-line bg-ink-900 p-4 sm:p-5", className)}>
-      <h2 id={id} className="mb-3 font-display text-xl font-bold uppercase tracking-wide">{title}</h2>
+      <h2 id={id} className="mb-3 text-xl font-semibold">{title}</h2>
       {children}
     </section>
   );
@@ -52,8 +52,8 @@ export function DecisionDetail({ invoiceId }: { invoiceId: string }) {
 
   return (
     <>
-      <Header connection={connection} />
-      <main className="mx-auto max-w-[1440px] px-4 pb-16 pt-5 sm:px-6">
+      <Header connection={connection} wide />
+      <main className="mx-auto max-w-[1180px] px-4 pb-16 pt-5 sm:px-6">
         <Link href="/" className="inline-flex min-h-[44px] items-center gap-2 rounded-chip font-semibold text-fg-muted hover:text-fg">
           <ArrowLeft aria-hidden className="h-4 w-4" />
           Volver al feed

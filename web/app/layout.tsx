@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "Guardia paga a tus proveedores en stablecoins locales y frena el fraude solo. Las reglas del dueño viven en un contrato.",
 };
 
-export const viewport: Viewport = { themeColor: "#070a12", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#f1f3f6", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -111,7 +111,7 @@ abstract class BaseSource implements DataSource {
 // Every 6 s the next decision (oldest first) arrives as `processing`, its steps
 // advance one per second, then it lands on its final status.
 // ---------------------------------------------------------------------------
-const ARRIVAL_MS = 6000;
+const ARRIVAL_MS = 11000; // leaves each final verdict on screen for ~6 s
 const STEP_MS = 1000;
 
 export class FixtureSource extends BaseSource {

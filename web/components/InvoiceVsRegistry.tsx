@@ -58,7 +58,7 @@ export function InvoiceVsRegistry({ d, rules }: { d: Decision; rules: Rules | nu
         <table className="w-full min-w-[520px] border-collapse text-left">
           <caption className="sr-only">Datos de la factura comparados con el registro del proveedor</caption>
           <thead>
-            <tr className="border-b border-line text-xs uppercase tracking-wide text-fg-muted">
+            <tr className="border-b border-line text-sm text-fg-muted">
               <th scope="col" className="py-2 pr-3 font-semibold">Dato</th>
               <th scope="col" className="py-2 pr-3 font-semibold">Factura</th>
               <th scope="col" className="py-2 pr-3 font-semibold">Registro</th>

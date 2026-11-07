@@ -7,14 +7,14 @@ import type { ConnectionState } from "@/lib/types";
 import { LiveIndicator } from "./LiveIndicator";
 import { ResetNotice } from "./ResetNotice";
 
-const pill = "inline-flex items-center gap-1.5 rounded-pill border px-3 py-1 text-sm font-semibold";
+const pill = "inline-flex items-center gap-1.5 text-sm font-medium";
 
 /** Which chain the payments run on: fixtures, agent on MOCK_CHAIN, or real Arbitrum One. */
 function ChainBadge() {
   const { mockChain } = useSourceState();
   if (USE_FIXTURES) {
     return (
-      <span className={`${pill} border-dashed border-fg-subtle/70 text-fg-muted`}>
+      <span className={`${pill} text-fg-muted`}>
         <FlaskConical aria-hidden className="h-4 w-4" />
         Modo demo: datos simulados
       </span>
@@ -22,7 +22,7 @@ function ChainBadge() {
   }
   if (mockChain === true) {
     return (
-      <span className={`${pill} border-dashed border-fg-subtle/70 text-fg-muted`}>
+      <span className={`${pill} text-fg-muted`}>
         <FlaskConical aria-hidden className="h-4 w-4" />
         Agente real · cadena simulada
       </span>
@@ -30,7 +30,7 @@ function ChainBadge() {
   }
   if (mockChain === false) {
     return (
-      <span className={`${pill} border-pass/60 text-fg`}>
+      <span className={`${pill} text-fg-muted`}>
         <Link2 aria-hidden className="h-4 w-4 text-pass" />
         Onchain · Arbitrum One
       </span>
@@ -39,20 +39,15 @@ function ChainBadge() {
   return null;
 }
 
-export function Header({ connection }: { connection: ConnectionState }) {
+export function Header({ connection, wide = false }: { connection: ConnectionState; wide?: boolean }) {
   return (
-    <header className="border-b border-line">
-      {/* thin filete-inspired rule */}
-      <div aria-hidden className="h-1 bg-[repeating-linear-gradient(90deg,rgb(var(--pass))_0_18px,transparent_18px_24px,rgb(var(--block))_24px_30px,transparent_30px_36px)] opacity-70" />
-      <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
+    <header className="border-b border-line bg-ink-900">
+      <div className={`mx-auto flex ${wide ? "max-w-[1180px]" : "max-w-[920px]"} flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6`}>
         <Link href="/" className="flex items-center gap-3 rounded-chip">
-          <ShieldCheck aria-hidden className="h-9 w-9 text-pass" />
-          <span>
-            <span className="block font-display text-4xl font-extrabold uppercase leading-none tracking-wide">Guardia</span>
-            <span className="block text-sm text-fg-muted">Agente de pagos autónomo</span>
-          </span>
+          <ShieldCheck aria-hidden className="h-7 w-7 text-pass" />
+          <span className="font-display text-3xl font-extrabold uppercase leading-none tracking-wide">Guardia</span>
         </Link>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
           <ChainBadge />
           <LiveIndicator connection={connection} />
         </div>

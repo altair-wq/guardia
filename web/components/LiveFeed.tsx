@@ -1,77 +1,89 @@
 "use client";
-import { AnimatePresence } from "framer-motion";
-import { Ban, CheckCircle2, ShieldCheck } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useDecisions } from "@/hooks/useDecisions";
 import { useRules } from "@/hooks/useRules";
 import { useResetShortcut } from "@/hooks/useResetShortcut";
-import { formatAmount } from "@/lib/format";
-import { CountUp } from "./CountUp";
-import { DecisionCard } from "./DecisionCard";
+import { formatMoney } from "@/lib/format";
+import type { Stats } from "@/lib/stats";
 import { EmptyState } from "./EmptyState";
 import { Header } from "./Header";
+import { HistoryRow } from "./HistoryRow";
+import { NowPanel } from "./NowPanel";
 import { RulesPanel } from "./RulesPanel";
-import { StatTile } from "./StatTile";
 
-const fmtArgt = (n: number) => formatAmount(n, "ARGt");
+function TodaySentence({ stats }: { stats: Stats }) {
+  const paid = stats.paidToday > 0 ? `pagó ${formatMoney(stats.paidToday, "ARGt")}` : "todavía no pagó nada";
+  const n = stats.blockedCount;
+  const blocked =
+    n === 0
+      ? "no frenó ningún intento"
+      : `frenó ${n} ${n === 1 ? "intento" : "intentos"}${stats.protectedAmount > 0 ? ` por ${formatMoney(stats.protectedAmount, "ARGt")}` : ""}`;
+  return (
+    <p className="text-lg text-fg-muted">
+      Hoy el agente <span className="font-semibold text-fg">{paid}</span> y <span className="font-semibold text-fg">{blocked}</span>.
+    </p>
+  );
+}
 
 export function LiveFeed() {
   const { decisions, stats, connection, error, rulesError } = useDecisions();
   const rules = useRules();
   useResetShortcut();
+  const [now, ...earlier] = decisions;
 
   return (
     <>
       <Header connection={connection} />
-      <main className="mx-auto max-w-[1440px] px-4 pb-16 pt-5 sm:px-6">
+      <main className="mx-auto max-w-[920px] px-4 pb-20 pt-6 sm:px-6 sm:pt-10">
         <h1 className="sr-only">Guardia: pagos a proveedores en vivo</h1>
 
-        <section aria-label="Resumen de hoy" className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 sm:grid sm:grid-cols-3 sm:overflow-visible">
-          <div className="min-w-[78%] snap-start sm:min-w-0">
-            <StatTile label="Pagado hoy" unit="ARGt" tone="pass" icon={<CheckCircle2 aria-hidden className="h-4 w-4 text-pass" />}>
-              <CountUp value={stats.paidToday} format={fmtArgt} />
-            </StatTile>
-          </div>
-          <div className="min-w-[78%] snap-start sm:min-w-0">
-            <StatTile label="Bloqueado hoy" tone="block" icon={<Ban aria-hidden className="h-4 w-4 text-block" />}>
-              {stats.blockedCount} <span className="text-2xl text-fg-muted">{stats.blockedCount === 1 ? "intento" : "intentos"}</span>
-            </StatTile>
-          </div>
-          <div className="min-w-[78%] snap-start sm:min-w-0">
-            <StatTile label="Plata protegida" unit="ARGt" tone="block" icon={<ShieldCheck aria-hidden className="h-4 w-4 text-block" />}>
-              <CountUp value={stats.protectedAmount} format={fmtArgt} />
-            </StatTile>
-          </div>
-        </section>
-
         {error && connection !== "live" && (
-          <p role="alert" className="mt-4 rounded-chip border border-block/50 bg-block-soft px-3 py-2 text-sm text-block-fg">
-            No pude hablar con el agente ({error}). Reintento solo.
+          <p role="alert" className="mb-6 rounded-chip border border-block/60 bg-block-soft px-4 py-3 text-base text-block-fg">
+            No hay conexión con el agente ({error}). Reintento solo.
           </p>
         )}
 
-        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
-          <section aria-labelledby="feed-title">
-            <h2 id="feed-title" className="mb-3 font-display text-xl font-bold uppercase tracking-wide text-fg-muted">
-              Lo que está haciendo el agente
+        <section aria-label="Última factura" aria-live="polite">
+          {now ? <NowPanel d={now} /> : <EmptyState />}
+        </section>
+
+        {decisions.length > 0 && (
+          <div className="mt-8">
+            <TodaySentence stats={stats} />
+          </div>
+        )}
+
+        {earlier.length > 0 && (
+          <section aria-labelledby="earlier-title" className="mt-8">
+            <h2 id="earlier-title" className="mb-3 text-base font-semibold text-fg-muted">
+              Antes
             </h2>
-            {decisions.length === 0 ? (
-              <EmptyState />
-            ) : (
-              <ol className="space-y-3" aria-live="polite" aria-relevant="additions">
-                <AnimatePresence initial={false}>
-                  {decisions.map((d) => (
-                    <li key={d.invoiceId}>
-                      <DecisionCard d={d} />
-                    </li>
-                  ))}
-                </AnimatePresence>
-              </ol>
-            )}
+            <ol className="divide-y divide-line overflow-hidden rounded-card border border-line bg-ink-900">
+              {earlier.map((d) => (
+                <li key={d.invoiceId}>
+                  <HistoryRow d={d} />
+                </li>
+              ))}
+            </ol>
           </section>
-          <aside className="lg:sticky lg:top-5 lg:self-start">
+        )}
+
+        <details className="group mt-10 rounded-card border border-line bg-ink-900">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-card px-5 py-4 [&::-webkit-details-marker]:hidden">
+            <span>
+              <span className="block text-lg font-semibold">Reglas del dueño en el contrato</span>
+              <span className="block text-base text-fg-muted">
+                {rules
+                  ? `Hasta ${formatMoney(rules.perPaymentCap, "ARGt")} por pago, solo a ${rules.suppliers.length} proveedores de la lista.`
+                  : "Cargando reglas…"}
+              </span>
+            </span>
+            <ChevronDown aria-hidden className="h-5 w-5 shrink-0 text-fg-muted transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="border-t border-line">
             <RulesPanel rules={rules} error={rulesError} />
-          </aside>
-        </div>
+          </div>
+        </details>
       </main>
     </>
   );
