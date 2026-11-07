@@ -58,7 +58,7 @@ export function RulesPanel({ rules, error }: { rules: Rules | null; error: strin
             Vault {shortAddress(rules.vault)} · {rules.chain === "arbitrum" ? "Arbitrum One" : rules.chain}
           </p>
         </>
-      )}
+      ) : null}
 
       <button
         type="button"
