@@ -80,7 +80,7 @@ export function LiveFeed() {
             <h2 id="earlier-title" className="mb-3 text-base font-semibold text-fg-muted">
               Antes
             </h2>
-            <ol className="divide-y divide-line overflow-hidden rounded-card border border-line bg-ink-900">
+            <ol className="shadow-card divide-y divide-line overflow-hidden rounded-card border border-line bg-ink-900">
               {earlier.map((d) => (
                 <li key={d.invoiceId}>
                   <HistoryRow d={d} />
@@ -90,7 +90,7 @@ export function LiveFeed() {
           </section>
         )}
 
-        <details className="group mt-10 rounded-card border border-line bg-ink-900">
+        <details className="shadow-card group mt-10 rounded-card border border-line bg-ink-900">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-card px-5 py-4 [&::-webkit-details-marker]:hidden">
             <span>
               <span className="block text-lg font-semibold">Reglas del dueño en el contrato</span>

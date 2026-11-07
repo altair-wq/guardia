@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Ban, Check, Loader2, ShieldX } from "lucide-react";
 import type { Decision } from "@/lib/types";
-import { formatMoney } from "@/lib/format";
+import { Money } from "./TokenBadge";
 import { toneOf, verdictWord } from "@/lib/headline";
 import { cn } from "@/lib/cn";
 
@@ -22,7 +22,9 @@ export function HistoryRow({ d }: { d: Decision }) {
       <span className="truncate text-base font-medium sm:text-lg">
         {d.status === "rejected_onchain" ? "Dirección fuera de la lista" : d.supplier.name}
       </span>
-      <span className={cn("text-right text-base tabular sm:text-lg", stopped ? "text-fg-muted" : "text-fg")}>{formatMoney(d.amount.value, d.amount.currency)}</span>
+      <span className={cn("text-right text-base sm:text-lg", stopped ? "text-fg-muted" : "text-fg")}>
+        <Money value={d.amount.value} token={d.amount.currency} />
+      </span>
       <span className={cn("col-start-2 text-sm font-semibold sm:col-start-auto sm:text-right sm:text-base", COLOR[tone])}>
         {verdictWord(d)}
         

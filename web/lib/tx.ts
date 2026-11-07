@@ -51,3 +51,17 @@ export function referenceLine(q: Quote): string | null {
   const n = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 0 }).format(1 / r);
   return `Referencia Belo: 1 ${token} ≈ ${n} ARGt`;
 }
+
+/**
+ * FX snapshot locked at execution: how many ARGt one unit of the pay token cost, from the agent's quote.
+ * Time = when the execute step ran (or the quote was taken at verify), else when the invoice arrived.
+ */
+export function fxSnapshot(d: Pick<Decision, "amount" | "quote" | "steps" | "receivedAt">): { target: string; argtPerUnit: number; at: string } | null {
+  const q = d.quote;
+  if (!q || q.route.length < 2) return null;
+  const out = Number(q.amountOut);
+  const inn = Number(d.amount.value);
+  if (!(out > 0) || !(inn > 0)) return null;
+  const at = d.steps.find((s) => s.name === "execute")?.at ?? d.steps.find((s) => s.name === "verify")?.at ?? d.receivedAt;
+  return { target: q.route[q.route.length - 1], argtPerUnit: inn / out, at };
+}

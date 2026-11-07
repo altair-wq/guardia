@@ -2,12 +2,12 @@ import type { Decision, Signal } from "./types";
 
 // Stripe-Radar-style "risk insights": the checks the agent ran, in plain words, pass or fail.
 // Each check reads correctly on its own: the label changes when it fails (no "✕ Sin ..." double negatives).
-const CHECKS: { ok: string; fail: string; failsOn: Signal[] }[] = [
-  { ok: "Proveedor en la lista", fail: "Proveedor desconocido", failsOn: ["unknown_supplier"] },
-  { ok: "Billetera registrada", fail: "Billetera distinta", failsOn: ["wallet_changed", "lookalike_address"] },
-  { ok: "Sin órdenes ocultas", fail: "Órdenes ocultas para la IA", failsOn: ["prompt_injection"] },
-  { ok: "Monto habitual", fail: "Monto inusual", failsOn: ["amount_anomaly"] },
-  { ok: "Sin urgencia", fail: "Pide pagar ya", failsOn: ["urgent_language", "website_mismatch"] },
+export const CHECKS: { category: string; ok: string; fail: string; failsOn: Signal[] }[] = [
+  { category: "Proveedor en la lista", ok: "Proveedor en la lista", fail: "Proveedor desconocido", failsOn: ["unknown_supplier"] },
+  { category: "Billetera coincide con el registro", ok: "Billetera registrada", fail: "Billetera distinta", failsOn: ["wallet_changed", "lookalike_address"] },
+  { category: "Instrucciones ocultas para la IA", ok: "Sin órdenes ocultas", fail: "Órdenes ocultas para la IA", failsOn: ["prompt_injection"] },
+  { category: "Monto habitual del proveedor", ok: "Monto habitual", fail: "Monto inusual", failsOn: ["amount_anomaly"] },
+  { category: "Lenguaje de urgencia", ok: "Sin urgencia", fail: "Pide pagar ya", failsOn: ["urgent_language", "website_mismatch"] },
 ];
 
 export interface Check {

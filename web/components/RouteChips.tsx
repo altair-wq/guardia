@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import type { Quote } from "@/lib/types";
 import { quoteSourceLabel, referenceLine } from "@/lib/tx";
+import { TokenBadge } from "./TokenBadge";
 
 export function RouteChips({ quote }: { quote: Quote }) {
   const ref = referenceLine(quote);
@@ -11,7 +12,7 @@ export function RouteChips({ quote }: { quote: Quote }) {
           {quote.route.map((t, i) => (
             <li key={`${t}-${i}`} className="flex items-center gap-1.5">
               {i > 0 && <ArrowRight aria-label="a" className="h-4 w-4 text-fg-subtle" />}
-              <span className="rounded-chip border border-line bg-ink-800 px-2 py-0.5 font-mono text-sm font-medium text-fg">{t}</span>
+              <TokenBadge token={t} className="text-sm" />
             </li>
           ))}
         </ol>

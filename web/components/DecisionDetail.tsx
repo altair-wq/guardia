@@ -6,7 +6,7 @@ import type { Decision } from "@/lib/types";
 import { getSource } from "@/lib/source";
 import { useSourceState } from "@/hooks/useSource";
 import { useResetShortcut } from "@/hooks/useResetShortcut";
-import { formatMoney } from "@/lib/format";
+import { Money } from "./TokenBadge";
 import { REJECT_REASON_LABEL } from "@/lib/labels";
 import { cn } from "@/lib/cn";
 import { Header } from "./Header";
@@ -23,7 +23,7 @@ import { displaySteps, isAwaitingConfirmation } from "@/lib/tx";
 function Panel({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) {
   const id = `p-${title.replace(/\W+/g, "-").toLowerCase()}`;
   return (
-    <section aria-labelledby={id} className={cn("rounded-card border border-line bg-ink-900 p-6", className)}>
+    <section aria-labelledby={id} className={cn("shadow-card rounded-card border border-line bg-ink-900 p-6", className)}>
       <h2 id={id} className="mb-4 text-lg font-semibold">{title}</h2>
       {children}
     </section>
@@ -96,7 +96,7 @@ function Detail({ d, rules }: { d: Decision; rules: ReturnType<typeof useSourceS
 
         <div className="min-w-0 space-y-6">
           <Panel title="Riesgo">
-            <RiskScore risk={d.risk} />
+            <RiskScore d={d} />
           </Panel>
 
           <Panel title="Pago">
@@ -104,12 +104,12 @@ function Detail({ d, rules }: { d: Decision; rules: ReturnType<typeof useSourceS
               <dl className="space-y-3">
                 <div className="flex items-baseline justify-between gap-4">
                   <dt className="text-base text-fg-muted">Recibe el proveedor</dt>
-                  <dd className="text-lg font-semibold tabular">{formatMoney(d.quote.amountOut, target)}</dd>
+                  <dd className="text-lg font-semibold"><Money value={d.quote.amountOut} token={target} /></dd>
                 </div>
                 {d.quote.minAmountOut && (
                   <div className="flex items-baseline justify-between gap-4">
                     <dt className="text-base text-fg-muted">Mínimo aceptado</dt>
-                    <dd className="text-base tabular">{formatMoney(d.quote.minAmountOut, target)}</dd>
+                    <dd className="text-base"><Money value={d.quote.minAmountOut} token={target} /></dd>
                   </div>
                 )}
                 <div className="pt-1">

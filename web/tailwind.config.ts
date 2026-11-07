@@ -39,6 +39,8 @@ const config: Config = {
         },
         line: "rgb(var(--line) / <alpha-value>)",
         brand: "rgb(var(--brand) / <alpha-value>)",
+        sky: { DEFAULT: "rgb(var(--sky) / <alpha-value>)" },
+        sim: { DEFAULT: "rgb(var(--sim) / <alpha-value>)", soft: "rgb(var(--sim-soft) / <alpha-value>)" },
       },
       fontFamily: {
         display: ["var(--font-sans)", "system-ui", "sans-serif"],

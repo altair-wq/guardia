@@ -3,9 +3,10 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Ban, CheckCircle2, Loader2, ShieldX } from "lucide-react";
 import type { Decision } from "@/lib/types";
-import { countryName, formatMoney, formatTime } from "@/lib/format";
+import { countryName, formatAmount, formatTime } from "@/lib/format";
 import { headline, toneOf, verdictWord, type Tone } from "@/lib/headline";
-import { displaySteps } from "@/lib/tx";
+import { displaySteps, fxSnapshot } from "@/lib/tx";
+import { Money } from "./TokenBadge";
 import { cn } from "@/lib/cn";
 import { StepTracker } from "./StepTracker";
 import { CheckList } from "./CheckList";
@@ -36,9 +37,10 @@ export function NowPanel({ d, full = false }: { d: Decision; full?: boolean }) {
   const Title = full ? "h1" : "h2";
   const checks = checksFor(d);
   const out = d.quote && d.quote.route.length > 1 ? d.quote : null;
+  const fx = fxSnapshot(d);
 
   return (
-    <article aria-labelledby={`v-${d.invoiceId}`} className="overflow-hidden rounded-card border border-line bg-ink-900">
+    <article aria-labelledby={`v-${d.invoiceId}`} className="shadow-card overflow-hidden rounded-card border border-line bg-ink-900">
       <div className={cn("flex items-center justify-between gap-4 px-6 py-5 transition-colors duration-500 sm:px-8 sm:py-6", BAND[tone])}>
         <motion.p
           id={`v-${d.invoiceId}`}
@@ -63,13 +65,18 @@ export function NowPanel({ d, full = false }: { d: Decision; full?: boolean }) {
             <p className="mt-1 text-base text-fg-muted">{sub}</p>
           </div>
           <div className="sm:text-right">
-            <p className={cn("text-2xl font-semibold leading-tight tabular", stopped && "text-fg-subtle line-through decoration-1")}>
-              {formatMoney(d.amount.value, d.amount.currency)}
+            <p className={cn("text-2xl font-semibold leading-tight", stopped && "text-fg-subtle")}>
+              <Money value={d.amount.value} token={d.amount.currency} strike={stopped} />
             </p>
             {out && !stopped && (
-              <p className="mt-1 text-base tabular text-fg-muted">
-                <ArrowRight aria-label="se convierte en" className="mr-1 inline h-4 w-4 align-[-2px]" />
-                {formatMoney(out.amountOut, out.route[out.route.length - 1])}
+              <p className="mt-1.5 flex items-center gap-1.5 text-lg text-fg-muted sm:justify-end">
+                <ArrowRight aria-label="se convierte en" className="h-4 w-4" />
+                <Money value={out.amountOut} token={out.route[out.route.length - 1]} />
+              </p>
+            )}
+            {fx && !stopped && (
+              <p className="mt-1 text-sm tabular text-fg-subtle">
+                1 {fx.target} = {formatAmount(fx.argtPerUnit.toFixed(2), "BRAt")} ARGt, fijado a las {formatTime(fx.at)}
               </p>
             )}
           </div>

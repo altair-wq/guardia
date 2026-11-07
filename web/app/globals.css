@@ -3,38 +3,37 @@
 @tailwind utilities;
 
 :root {
-  /* Calm palette, grounded in colour-preference research:
-     - blue is the most liked hue across cultures; dark yellow/olive/brown the least (Palmer & Schloss)
-     - large surfaces are preferred light and desaturated; saturated reds clash (Schloss, Strauss & Palmer)
-     - medium saturation is most pleasant, saturation + brightness raise arousal (Wilms & Oberfeld 2018)
-     So: light blue-grey surfaces, navy ink, one blue brand, analogous teal for "paid",
-     muted rose (not alarm red) for "blocked", dusty plum for "the contract said no".
-     Names kept from the dark theme: ink-950 = page, ink-900 = surface. */
-  --ink-950: 243 246 250;  /* page     #F3F6FA */
-  --ink-900: 255 255 255;  /* surface  #FFFFFF */
-  --ink-800: 234 239 246;
-  --ink-700: 219 227 238;
-  --ink-600: 172 186 206;
-  --fg: 27 42 65;          /* navy ink #1B2A41 */
-  --fg-muted: 90 107 130;  /* #5A6B82 */
-  --fg-subtle: 118 134 156;
-  --line: 221 228 238;     /* #DDE4EE */
-  --brand: 61 104 196;     /* calm blue #3D68C4 */
-  /* pasa: teal-green, analogous to the blue */
-  --pass: 47 143 122;      /* #2F8F7A */
-  --pass-soft: 228 243 239;
-  --pass-fg: 31 107 91;
-  /* no pasa: muted rose */
-  --block: 196 81 90;      /* #C4515A */
-  --block-soft: 251 235 236;
-  --block-fg: 158 58 67;
-  /* the contract wall: dusty plum */
-  --wall: 124 91 166;      /* #7C5BA6 */
-  --wall-soft: 241 236 248;
-  /* in progress: soft blue */
-  --work: 61 104 196;
-  --work-soft: 232 238 248;
-  --radius-card: 16px;
+  /* Institutional fintech palette (team design brief, Nov 7):
+     slate canvas, white cards, navy authority, sky blue as the Argentine touch for live/AI states.
+     Names kept from the dark theme: ink-950 = canvas, ink-900 = card. */
+  --ink-950: 248 250 252;  /* canvas  #F8FAFC slate-50 */
+  --ink-900: 255 255 255;  /* card    #FFFFFF */
+  --ink-800: 241 245 249;  /* #F1F5F9 */
+  --ink-700: 226 232 240;  /* #E2E8F0 */
+  --ink-600: 203 213 225;  /* #CBD5E1 */
+  --fg: 15 23 42;          /* #0F172A slate-900 */
+  --fg-muted: 71 85 105;   /* #475569 */
+  --fg-subtle: 100 116 139;/* #64748B */
+  --line: 226 232 240;     /* #E2E8F0 */
+  --brand: 30 64 175;      /* deep navy #1E40AF */
+  --sky: 14 165 233;       /* Argentine sky #0EA5E9 */
+  --sim: 124 58 237;       /* simulation purple #7C3AED */
+  --sim-soft: 245 243 255;
+  /* paid */
+  --pass: 4 120 87;        /* #047857 */
+  --pass-soft: 236 253 245;/* #ECFDF5 */
+  --pass-fg: 4 120 87;
+  /* blocked / fraud */
+  --block: 190 18 60;      /* #BE123C */
+  --block-soft: 255 241 242;/* #FFF1F2 */
+  --block-fg: 190 18 60;
+  /* rejected by the contract */
+  --wall: 159 18 57;       /* #9F1239 */
+  --wall-soft: 255 228 230;
+  /* in progress */
+  --work: 30 64 175;
+  --work-soft: 239 246 255;
+  --radius-card: 14px;
   --radius-chip: 8px;
   color-scheme: light;
 }
@@ -47,6 +46,7 @@ body {
 }
 
 .tabular { font-variant-numeric: tabular-nums; }
+.shadow-card { box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px -12px rgb(15 23 42 / 0.10); }
 
 :focus-visible {
   outline: 3px solid rgb(var(--brand));

@@ -1,38 +1,39 @@
 "use client";
 import Link from "next/link";
-import { FlaskConical, Link2, ShieldCheck } from "lucide-react";
+import { Link2, ShieldCheck, Zap } from "lucide-react";
 import { USE_FIXTURES } from "@/lib/source";
 import { useSourceState } from "@/hooks/useSource";
 import type { ConnectionState } from "@/lib/types";
 import { LiveIndicator } from "./LiveIndicator";
 import { ResetNotice } from "./ResetNotice";
 
-const pill = "inline-flex items-center gap-1.5 text-sm font-medium";
+const pill = "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold";
+const simPill = `${pill} border border-sim/30 bg-sim-soft text-sim bg-[repeating-linear-gradient(135deg,transparent_0_6px,rgb(var(--sim)/0.06)_6px_12px)]`;
 
 /** Which chain the payments run on: fixtures, agent on MOCK_CHAIN, or real Arbitrum One. */
 function ChainBadge() {
   const { mockChain } = useSourceState();
   if (USE_FIXTURES) {
     return (
-      <span className={`${pill} text-fg-muted`}>
-        <FlaskConical aria-hidden className="h-4 w-4" />
+      <span className={simPill}>
+        <Zap aria-hidden className="h-4 w-4" />
         Modo demo: datos simulados
       </span>
     );
   }
   if (mockChain === true) {
     return (
-      <span className={`${pill} text-fg-muted`}>
-        <FlaskConical aria-hidden className="h-4 w-4" />
-        Agente real · cadena simulada
+      <span className={simPill}>
+        <Zap aria-hidden className="h-4 w-4" />
+        Agente real, cadena simulada
       </span>
     );
   }
   if (mockChain === false) {
     return (
-      <span className={`${pill} text-fg-muted`}>
-        <Link2 aria-hidden className="h-4 w-4 text-pass" />
-        Onchain · Arbitrum One
+      <span className={`${pill} bg-sky-50 text-sky-800 ring-1 ring-sky-200`}>
+        <Link2 aria-hidden className="h-4 w-4 text-sky" />
+        Onchain en Arbitrum One
       </span>
     );
   }
@@ -47,7 +48,7 @@ export function Header({ connection, wide = false }: { connection: ConnectionSta
           <ShieldCheck aria-hidden strokeWidth={2.25} className="h-7 w-7 text-brand" />
           <span className="text-2xl font-bold leading-none tracking-[-0.02em]">Guardia</span>
         </Link>
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
+        <div className="flex flex-wrap items-center gap-2">
           <ChainBadge />
           <LiveIndicator connection={connection} />
         </div>
