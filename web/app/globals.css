@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* ink: near-black, blue-tinted */
+  --ink-950: 7 10 18;
+  --ink-900: 12 16 28;
+  --ink-800: 19 25 42;
+  --ink-700: 30 38 60;
+  --ink-600: 48 58 86;
+  --fg: 238 241 248;
+  --fg-muted: 172 182 204;
+  --fg-subtle: 134 146 172;
+  --line: 40 49 74;
+  /* pasa: electric blue */
+  --pass: 77 148 255;
+  --pass-soft: 20 40 82;
+  --pass-fg: 150 194 255;
+  /* no pasa: amber */
+  --block: 255 176 32;
+  --block-soft: 66 44 10;
+  --block-fg: 255 204 112;
+  /* the contract wall */
+  --wall: 255 138 76;
+  --wall-soft: 70 32 18;
+  /* in progress */
+  --work: 196 206 228;
+  --work-soft: 34 42 64;
+  --radius-card: 14px;
+  --radius-chip: 8px;
+  color-scheme: dark;
+}
+
+html { background: rgb(var(--ink-950)); }
+body {
+  background: rgb(var(--ink-950));
+  color: rgb(var(--fg));
+  -webkit-font-smoothing: antialiased;
+}
+
+.tabular { font-variant-numeric: tabular-nums; }
+
+:focus-visible {
+  outline: 3px solid rgb(var(--pass));
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* perforated ticket edge */
+.perforated {
+  background-image: radial-gradient(circle at 0 50%, rgb(var(--ink-950)) 7px, transparent 7.5px),
+    radial-gradient(circle at 100% 50%, rgb(var(--ink-950)) 7px, transparent 7.5px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

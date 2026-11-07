@@ -1,0 +1,13 @@
+{
+  "vault": "0x4b1e00000000000000000000000000000000a07d",
+  "chain": "arbitrum",
+  "balance": { "value": "12400000", "currency": "ARGt" },
+  "perPaymentCap": "1500000",
+  "dailyCap": "5000000",
+  "spentToday": "3480000",
+  "suppliers": [
+    { "name": "Autopeças Sul Ltda", "country": "BR", "wallet": "0x7a3f0000000000000000000000000000000091c2", "payToken": "BRAt", "website": "https://example.com/autopecas-sul" },
+    { "name": "Têxtil Paraná Ltda", "country": "BR", "wallet": "0x19c400000000000000000000000000000000e3a8", "payToken": "BRAt", "website": "https://example.com/textil-parana" },
+    { "name": "Insumos del Litoral SRL", "country": "AR", "wallet": "0xd02b000000000000000000000000000000005f71", "payToken": "ARGt", "website": "https://example.com/insumos-litoral" }
+  ]
+}
