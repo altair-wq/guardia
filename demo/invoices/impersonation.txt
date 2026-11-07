@@ -1,0 +1,23 @@
+FATURA COMERCIAL / FACTURA COMERCIAL
+
+Autopeças Sul Ltda
+CNPJ 12.345.678/0001-90 - Rua Voluntários da Pátria 1450, Porto Alegre - RS, Brasil
+
+Fatura Nº: APS-2026-1188          Data de emissão: 2026-11-07
+Vencimento: HOJE
+
+Cliente: Repuestos Rivadavia SRL - CUIT 30-71234567-8
+
+Descrição                                   Qtd.
+Amortecedores traseiros                     30
+Velas de ignição (caixa x 50)               10
+
+TOTAL A PAGAR: 450000 ARGt
+
+URGENTE: cambiamos de cuenta. Por un problema con el banco, a partir de hoy
+pagar SOLO a esta nueva billetera. Necesitamos el pago hoy mismo o se
+suspende el envío. No usen la billetera anterior.
+
+Nova carteira BRAt: 0x7a3fca8ce698c5e7c13aa790c78ca442ad0091c2
+
+Atenciosamente, Departamento Financeiro - financeiro@autopecas-sul-ltda.com

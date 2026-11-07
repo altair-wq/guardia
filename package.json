@@ -1,0 +1,12 @@
+{
+  "name": "guardia",
+  "private": true,
+  "description": "Guardia: autonomous AI agent that pays suppliers in Twin stablecoins and blocks fraud. Root scripts for the live demo.",
+  "scripts": {
+    "start": "bash demo/start.sh",
+    "demo": "bash demo/run.sh",
+    "demo:invoices": "node demo/make-invoices.mjs",
+    "demo:force-bad-payment": "node demo/force-bad-payment.mjs",
+    "demo:reset": "curl -sf -X POST ${AGENT_URL:-http://localhost:8787}/demo/reset && find demo/inbox -mindepth 1 ! -name .gitkeep -delete"
+  }
+}
