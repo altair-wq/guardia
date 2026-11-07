@@ -52,4 +52,5 @@ Every Decision is validated with ajv against `shared/decision.schema.json` befor
 - **Execution failure** (RPC down after one retry): the execute step is `failed` and the status is `blocked`, because the schema has no "failed" status; the reason says the network failed and nothing moved.
 - **Belo**: `api.belo.app` was unreachable from the build sandbox, so the response is parsed defensively (USDT/USD vs ARS and BRL, ask/bid/price). The first response is logged; tighten `beloUsdRates` in `src/quote.ts` once someone has curled it.
 - **Curve pools** are cryptoswap pools (`get_dy(uint256,uint256,uint256)`), index 0 = ARGt/BRAt, index 1 = USDT0 (checked on-chain).
+- **Invoice ids never repeat**: PolicyVault reverts `AlreadyPaid` on a reused `keccak256(invoiceId)`, so `/demo/reset` keeps the counter (`lastSeq` in `agent/data/decisions.json`). Do not delete that file between live runs, or ids restart at `inv_001` and collide on-chain.
 - Website check: if a supplier's `website` is a placeholder, Firecrawl will flag `website_mismatch` (+25, not a block on its own).

@@ -15,6 +15,8 @@ export const validateDecision = ajv.compile<Decision>(schema);
 interface Persisted {
   decisions: Decision[];
   hashes: Record<string, string>; // content sha256 -> invoiceId (idempotency)
+  /** Highest invoice number ever issued. Survives /demo/reset because PolicyVault rejects a reused invoiceId (AlreadyPaid). */
+  lastSeq?: number;
 }
 
 export class Store extends EventEmitter {
@@ -44,7 +46,8 @@ export class Store extends EventEmitter {
   }
 
   nextId(): string {
-    const max = this.state.decisions.reduce((m, d) => Math.max(m, Number(d.invoiceId.replace(/\D/g, "")) || 0), 0);
+    const max = this.state.decisions.reduce((m, d) => Math.max(m, Number(d.invoiceId.replace(/\D/g, "")) || 0), this.state.lastSeq ?? 0);
+    this.state.lastSeq = max + 1;
     return `inv_${String(max + 1).padStart(3, "0")}`;
   }
 
@@ -64,7 +67,8 @@ export class Store extends EventEmitter {
   }
 
   reset(): void {
-    this.state = { decisions: [], hashes: {} };
+    // Keep the counter: on-chain invoice ids must never repeat.
+    this.state = { decisions: [], hashes: {}, lastSeq: this.state.lastSeq };
     this.persist();
   }
 

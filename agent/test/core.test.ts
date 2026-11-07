@@ -124,3 +124,14 @@ describe("amount parsing", () => {
     expect(ex.injectionDetected).toBe(false);
   });
 });
+
+describe("invoice ids", () => {
+  it("never repeat after reset (PolicyVault rejects reused ids)", async () => {
+    const { Store } = await import("../src/store.js");
+    const st = new Store(null);
+    expect(st.nextId()).toBe("inv_001");
+    expect(st.nextId()).toBe("inv_002");
+    st.reset();
+    expect(st.nextId()).toBe("inv_003");
+  });
+});
