@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
+import { Coins } from "lucide-react";
 import type { Decision } from "@/lib/types";
 import { countryName, formatAmount, formatMoney, formatTime } from "@/lib/format";
 import { cn } from "@/lib/cn";
@@ -10,6 +11,8 @@ import { StepTracker } from "./StepTracker";
 import { RouteChips } from "./RouteChips";
 import { TxLink } from "./TxLink";
 import { Stamp } from "./Stamp";
+import { PendingConfirmation } from "./PendingConfirmation";
+import { displaySteps, isAwaitingConfirmation, isCurrencyBlock } from "@/lib/tx";
 
 const FRAME: Record<Decision["status"], string> = {
   received: "border-line",
@@ -60,22 +63,34 @@ export function DecisionCard({ d }: { d: Decision }) {
         </div>
 
         <div className="mt-4">
-          {inFlight && <StepTracker steps={d.steps} />}
+          {inFlight && <StepTracker steps={displaySteps(d)} />}
+          {isAwaitingConfirmation(d) && (
+            <>
+              {d.quote && <div className="mt-3"><RouteChips quote={d.quote} /></div>}
+              <PendingConfirmation d={d} className="mt-2" />
+            </>
+          )}
 
           {d.status === "blocked" && (
             <>
-              <p className="max-w-[46ch] text-lg font-semibold leading-snug text-fg sm:text-xl">{d.reason}</p>
-              <div className="mt-3">
+              <p className="max-w-[40ch] text-xl font-semibold leading-snug text-fg sm:text-2xl md:pr-40">{d.reason}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {isCurrencyBlock(d) && (
+                  <span className="inline-flex items-center gap-1.5 rounded-chip border border-block/50 bg-block-soft px-2.5 py-1 text-sm font-medium text-block-fg">
+                    <Coins aria-hidden className="h-3.5 w-3.5" />
+                    moneda no aceptada
+                  </span>
+                )}
                 <SignalList signals={d.risk.signals} />
               </div>
-              <Stamp text="No pasa" className="absolute right-4 top-1/2 -translate-y-1/2 opacity-90 sm:right-6" />
+              <Stamp text="No pasa" className="absolute bottom-4 right-4 opacity-90 max-md:!text-lg sm:right-6 md:bottom-auto md:top-1/2 md:-translate-y-1/2" />
             </>
           )}
 
           {d.status === "paid" && (
             <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
               {d.quote && <RouteChips quote={d.quote} />}
-              <TxLink href={d.explorerUrl} hash={d.txHash} />
+              <TxLink d={d} />
             </div>
           )}
 
@@ -84,7 +99,7 @@ export function DecisionCard({ d }: { d: Decision }) {
               <p className="max-w-[46ch] text-lg font-semibold leading-snug sm:text-xl">
                 Alguien intentó pagar {formatMoney(d.amount.value, d.amount.currency)} a una dirección fuera de la lista. El contrato dijo que no.
               </p>
-              <TxLink href={d.explorerUrl} hash={d.txHash} className="mt-1" />
+              <TxLink d={d} className="mt-1" />
               <Stamp text="El contrato dijo que no" tone="wall" className="absolute bottom-5 right-4 hidden !text-xl sm:right-6 md:block" />
             </>
           )}

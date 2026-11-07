@@ -54,7 +54,7 @@ export function InvoiceVsRegistry({ d, rules }: { d: Decision; rules: Rules | nu
 
   return (
     <div>
-      <div className="overflow-x-auto">
+      <div className="relative overflow-x-auto">
         <table className="w-full min-w-[520px] border-collapse text-left">
           <caption className="sr-only">Datos de la factura comparados con el registro del proveedor</caption>
           <thead>

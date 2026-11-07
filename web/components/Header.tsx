@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { ShieldCheck } from "lucide-react";
+import { FlaskConical, ShieldCheck } from "lucide-react";
+import { USE_FIXTURES } from "@/lib/source";
 import type { ConnectionState } from "@/lib/types";
 import { LiveIndicator } from "./LiveIndicator";
+import { ResetNotice } from "./ResetNotice";
 
 export function Header({ connection }: { connection: ConnectionState }) {
   return (
@@ -16,8 +18,17 @@ export function Header({ connection }: { connection: ConnectionState }) {
             <span className="block text-sm text-fg-muted">Agente de pagos autónomo</span>
           </span>
         </Link>
-        <LiveIndicator connection={connection} />
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          {USE_FIXTURES && (
+            <span className="inline-flex items-center gap-1.5 rounded-pill border border-dashed border-fg-subtle/70 px-3 py-1 text-sm font-semibold text-fg-muted">
+              <FlaskConical aria-hidden className="h-4 w-4" />
+              Modo demo: datos simulados
+            </span>
+          )}
+          <LiveIndicator connection={connection} />
+        </div>
       </div>
+      <ResetNotice />
     </header>
   );
 }

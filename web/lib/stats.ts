@@ -13,10 +13,11 @@ export function deriveStats(decisions: Decision[]): Stats {
   let protectedAmount = 0;
   for (const d of decisions) {
     const v = Number(d.amount.value) || 0;
-    if (d.status === "paid") paidToday += v;
+    if (d.status === "paid" && d.amount.currency === "ARGt") paidToday += v;
     if (d.status === "blocked" || d.status === "rejected_onchain") {
       blockedCount += 1;
-      protectedAmount += v;
+      // Only peso amounts add up in ARGt (a blocked invoice in dólares/reales still counts as an attempt).
+      if (d.amount.currency === "ARGt") protectedAmount += v;
     }
   }
   return { paidToday, blockedCount, protectedAmount };

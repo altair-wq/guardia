@@ -18,6 +18,8 @@ import { RiskScore } from "./RiskScore";
 import { InvoiceVsRegistry } from "./InvoiceVsRegistry";
 import { InjectionBlock } from "./InjectionBlock";
 import { Stamp } from "./Stamp";
+import { PendingConfirmation } from "./PendingConfirmation";
+import { displaySteps, isAwaitingConfirmation } from "@/lib/tx";
 
 function Panel({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) {
   const id = `p-${title.replace(/\W+/g, "-").toLowerCase()}`;
@@ -105,8 +107,8 @@ function Detail({ d, rules }: { d: Decision; rules: ReturnType<typeof useSourceS
         {d.status === "rejected_onchain" && <Stamp text="Rechazado onchain" tone="wall" className="absolute right-6 top-6 hidden md:block" />}
       </div>
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
-        <div className="space-y-5">
+      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+        <div className="min-w-0 space-y-5">
           {injection && <InjectionBlock d={d} />}
           <Panel title="Factura vs. registro">
             <InvoiceVsRegistry d={d} rules={rules} />
@@ -116,9 +118,9 @@ function Detail({ d, rules }: { d: Decision; rules: ReturnType<typeof useSourceS
           </Panel>
         </div>
 
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           <Panel title="Lo que hizo el agente">
-            <StepTrace steps={d.steps} />
+            <StepTrace steps={displaySteps(d)} />
           </Panel>
 
           <Panel title="Cotización y ruta">
@@ -134,12 +136,6 @@ function Detail({ d, rules }: { d: Decision; rules: ReturnType<typeof useSourceS
                     <div>
                       <dt className="text-fg-muted">Mínimo aceptado</dt>
                       <dd className="font-mono text-lg tabular">{formatMoney(d.quote.minAmountOut, d.quote.route[d.quote.route.length - 1])}</dd>
-                    </div>
-                  )}
-                  {d.quote.referenceRate && (
-                    <div>
-                      <dt className="text-fg-muted">Referencia Belo</dt>
-                      <dd className="font-mono text-lg tabular">{d.quote.referenceRate} por ARGt</dd>
                     </div>
                   )}
                 </dl>
@@ -165,8 +161,12 @@ function Detail({ d, rules }: { d: Decision; rules: ReturnType<typeof useSourceS
                 <Ban aria-hidden className="h-5 w-5" /> No se ejecutó. {executed?.status === "failed" ? "La llamada al contrato falló y no se movió nada." : "Nunca llegó al contrato."}
               </p>
             )}
-            {(d.status === "processing" || d.status === "received") && <p className="text-fg-muted">Todavía no llegó al contrato.</p>}
-            <TxLink href={d.explorerUrl} hash={d.txHash} className="mt-2" />
+            {isAwaitingConfirmation(d) ? (
+              <PendingConfirmation d={d} />
+            ) : (
+              (d.status === "processing" || d.status === "received") && <p className="text-fg-muted">Todavía no llegó al contrato.</p>
+            )}
+            {!isAwaitingConfirmation(d) && <TxLink d={d} className="mt-2" />}
           </Panel>
         </div>
       </div>
