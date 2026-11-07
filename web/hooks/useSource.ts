@@ -2,7 +2,14 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { getSource, type SourceState } from "@/lib/source";
 
-const SERVER_STATE: SourceState = { decisions: [], rules: null, connection: "connecting", error: null, notice: null };
+const SERVER_STATE: SourceState = {
+  decisions: [],
+  rules: null,
+  rulesError: null,
+  connection: "connecting",
+  error: null,
+  notice: null,
+};
 
 export function useSourceState(): SourceState {
   const source = getSource();

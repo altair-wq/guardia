@@ -5,6 +5,7 @@ import fixtureRules from "@/fixtures/rules.json";
 export interface SourceState {
   decisions: Decision[]; // newest first
   rules: Rules | null;
+  rulesError: string | null;
   connection: ConnectionState;
   error: string | null;
   /** Short-lived message for the presenter (e.g. reset refused). Cleared automatically. */
@@ -25,7 +26,14 @@ export interface DataSource {
 export const USE_FIXTURES = process.env.NEXT_PUBLIC_USE_FIXTURES !== "false";
 export const AGENT_URL = (process.env.NEXT_PUBLIC_AGENT_URL || "http://localhost:8787").replace(/\/$/, "");
 
-const EMPTY: SourceState = { decisions: [], rules: null, connection: "connecting", error: null, notice: null };
+const EMPTY: SourceState = {
+  decisions: [],
+  rules: null,
+  rulesError: null,
+  connection: "connecting",
+  error: null,
+  notice: null,
+};
 
 abstract class BaseSource implements DataSource {
   abstract readonly kind: "fixtures" | "live";
@@ -200,9 +208,11 @@ export class LiveSource extends BaseSource {
 
   async refreshRules() {
     try {
-      this.set({ rules: await this.json<Rules>("/rules") });
-    } catch {
-      /* keep last known rules */
+      this.set({ rules: await this.json<Rules>("/rules"), rulesError: null });
+    } catch (error) {
+      this.set({
+        rulesError: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 
@@ -214,7 +224,12 @@ export class LiveSource extends BaseSource {
         this.json<Decision[]>("/decisions"),
         this.json<Rules>("/rules"),
       ]);
-      this.set({ decisions: [...decisions].sort((a, b) => b.receivedAt.localeCompare(a.receivedAt)), rules, error: null });
+      this.set({
+        decisions: [...decisions].sort((a, b) => b.receivedAt.localeCompare(a.receivedAt)),
+        rules,
+        rulesError: null,
+        error: null,
+      });
     } catch (e) {
       this.set({ error: (e as Error).message });
       return this.scheduleReconnect();

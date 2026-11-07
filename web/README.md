@@ -55,6 +55,7 @@ Checks: `npm run lint` (TypeScript check; Next 16 removed `next lint`) and `NEXT
 - Simulated tx (fixtures mode, `mock-fixed-rate`, or a `0xf100…` fixture hash): "Transacción simulada" badge, no Arbiscan link. Real tx: "Ver en Arbiscan ↗".
 - `processing` + `txHash`: "Pago enviado, esperando confirmación en la red" with a pulsing dot and the tx link; the execute step shows as running.
 - Blocked for currency (reason mentions "moneda"): no conversion shown, the reason stays the headline, plus a "moneda no aceptada" chip. Paid/protected stats only add ARGt amounts.
+- If refreshing `/rules` fails while the event stream is live, the dashboard keeps the last known rules and shows a warning instead of presenting stale data as current.
 
 ## Structure
 

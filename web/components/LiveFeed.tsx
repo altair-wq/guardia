@@ -15,7 +15,7 @@ import { StatTile } from "./StatTile";
 const fmtArgt = (n: number) => formatAmount(n, "ARGt");
 
 export function LiveFeed() {
-  const { decisions, stats, connection, error } = useDecisions();
+  const { decisions, stats, connection, error, rulesError } = useDecisions();
   const rules = useRules();
   useResetShortcut();
 
@@ -69,7 +69,7 @@ export function LiveFeed() {
             )}
           </section>
           <aside className="lg:sticky lg:top-5 lg:self-start">
-            <RulesPanel rules={rules} />
+            <RulesPanel rules={rules} error={rulesError} />
           </aside>
         </div>
       </main>
