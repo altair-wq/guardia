@@ -145,6 +145,7 @@ export class Pipeline {
       log(`extracted (${usedLlm ? "llm" : "heuristic"}): ${ex.supplierName} / ${ex.amount} ${ex.currency}`);
       d.supplier.name = ex.supplierName || "Proveedor desconocido";
       d.supplier.wallet = ex.wallet;
+      if (ex.injectionDetected && ex.injectionQuote) d.injectionQuote = ex.injectionQuote.slice(0, 300);
       const cur = normalizeCurrency(ex.currency);
       d.amount = { value: ex.amount || "0", currency: cur.code };
       step("extract", "done");
