@@ -59,6 +59,12 @@ export function templateReason(
   }
 }
 
+/** Broadcast, receipt not seen yet: money may have moved, so never say it did not. */
+export const PENDING_REASON = "Pago enviado, esperando confirmación en la red. Verificalo en Arbiscan.";
+export const PENDING_TIMEOUT_REASON =
+  "Pago enviado, pero la red todavía no lo confirmó. No lo reenvío para no pagar dos veces. Verificalo en Arbiscan.";
+export const REVERTED_REASON = "La red revirtió la transacción, así que el pago no se hizo. No se movió nada.";
+
 /** Fixed text (no LLM) for an invoice in a currency we do not pay. */
 export function currencyReason(label: string, signals: Signal[] = []): string {
   const base = `La factura está en una moneda que no pagamos (${label}). Solo pagamos facturas en pesos (ARGt).`;
