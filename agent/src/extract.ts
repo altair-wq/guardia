@@ -25,7 +25,7 @@ FIELDS:
 - supplierName: the issuing company's legal name exactly as written.
 - wallet: the 0x... address the invoice asks to be paid to (42 chars). "" if none.
 - amount: the total to pay as a plain decimal string with "." as decimal separator and no thousands separators (e.g. "1250000" or "1250.50").
-- currency: currency as written (e.g. ARGt, ARS, BRAt, BRL). "" if none.
+- currency: the currency of the TOTAL amount exactly as written next to it (e.g. ARGt, ARS, $, BRL, R$, USD), not the token the supplier wants to receive. "" if none.
 - dueDate: ISO date YYYY-MM-DD if present, else "".
 - notes: one short line summarising anything unusual, else "".
 - urgentLanguage: true if the text pressures for urgent or immediate payment, threatens penalties, or asks to skip checks.`;
@@ -91,6 +91,20 @@ export function parseAmount(raw: string): string {
   return s.replace(/^0+(?=\d)/, "");
 }
 
+// Currency must come from the total line itself: the payout token (e.g. "Recebemos em BRAt") is
+// often mentioned elsewhere on the invoice and is not the currency of the amount.
+const CUR = String.raw`ARGt|BRAt|ARS|BRL|USDT|USDC|USD|EUR|R\$|US\$|U\$S|AR\$|\$|€|pesos?|reais|reales|real|d[oó]lares|euros`;
+const TOTAL_RE = new RegExp(
+  String.raw`(?:total a pagar|total|monto|importe|amount|valor)\s*[:\-]?\s*(${CUR})?\s*(\d[\d.,]*)[ \t]*(${CUR})?`,
+  "i",
+);
+
+/** The first "Total ...: <currency?> <amount> <currency?>" line, if any. */
+export function totalLine(text: string): { amount: string; currency: string } | null {
+  const m = TOTAL_RE.exec(text);
+  return m ? { amount: m[2], currency: (m[1] || m[3] || "").trim() } : null;
+}
+
 /** No-LLM fallback so the demo runs even without a key or when the LLM fails. */
 export function heuristicExtract(text: string): Extraction {
   const line = (re: RegExp) => re.exec(text)?.[1]?.trim() ?? "";
@@ -101,8 +115,9 @@ export function heuristicExtract(text: string): Extraction {
   const wallet =
     line(/(?:wallet|billetera|direcci[oó]n|address|carteira)[^\n]*?(0x[a-fA-F0-9]{40})/i) ||
     (/0x[a-fA-F0-9]{40}/.exec(text)?.[0] ?? "");
-  const amountRaw = line(/(?:total a pagar|total|monto|importe|amount|valor)\s*[:\-]?\s*(?:ARGt|ARS|\$|BRAt|BRL|R\$)?\s*([\d.,]+)/i);
-  const currency = line(/\b(ARGt|BRAt|ARS|BRL|USD|USDT)\b/) || "ARGt";
+  const tm = totalLine(text);
+  const amountRaw = tm?.amount ?? "";
+  const currency = tm?.currency || line(/\b(ARGt|BRAt|ARS|BRL|USD|USDT)\b/) || "ARGt";
   const due = line(/(?:vencimiento|vence|due date|due)\s*[:\-]?\s*(\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{4})/i);
   const quote = regexInjection(text);
   return {
@@ -150,7 +165,29 @@ export async function extract(text: string, log: (m: string) => void): Promise<E
     data.injectionQuote ||= regexQuote;
   }
   if (regexUrgent(text)) data.urgentLanguage = true;
+  // The currency written on the total line wins over the LLM's reading.
+  const tl = totalLine(text);
+  if (tl?.currency && tl.currency !== data.currency) {
+    if (usedLlm) log(`currency: total line says "${tl.currency}", LLM said "${data.currency}"; using the total line`);
+    data.currency = tl.currency;
+  }
   data.amount = parseAmount(data.amount) || data.amount;
   data.wallet = data.wallet.trim();
   return { data, usedLlm };
+}
+
+export type CurrencyCheck = { ok: true; code: "ARGt" } | { ok: false; code: string; label: string };
+
+/**
+ * The vault only holds ARGt, so only peso invoices are payable. ARGt, ARS, "$", AR$ and "pesos"
+ * normalise to ARGt; an invoice with no stated currency is treated as pesos. Anything else is refused.
+ */
+export function normalizeCurrency(raw: string): CurrencyCheck {
+  const c = raw.trim().toLowerCase().replace(/\s+/g, " ").replace(/\.$/, "");
+  if (["", "argt", "ars", "$", "ar$", "peso", "pesos", "pesos argentinos", "peso argentino"].includes(c)) return { ok: true, code: "ARGt" };
+  const code = raw.trim();
+  if (/^(brl|r\$|brat|reais|real|reales)$/.test(c) || c.startsWith("real")) return { ok: false, code, label: "reales" };
+  if (/^(usd|us\$|u\$s|u\$d|usdt|usdc)$/.test(c) || /d[oó]lar/.test(c)) return { ok: false, code, label: "dólares" };
+  if (/^(eur|€|euros?)$/.test(c)) return { ok: false, code, label: "euros" };
+  return { ok: false, code, label: code };
 }

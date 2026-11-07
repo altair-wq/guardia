@@ -1,7 +1,7 @@
 import { explain } from "./explain.js";
-import { extract } from "./extract.js";
+import { extract, normalizeCurrency } from "./extract.js";
 import { sha256, toText } from "./intake.js";
-import type { Outcome } from "./reasons.js";
+import { currencyReason, type Outcome } from "./reasons.js";
 import { quote } from "./quote.js";
 import { score } from "./score.js";
 import type { Decision, Signal, StepName, StepStatus, Supplier } from "./types.js";
@@ -78,7 +78,8 @@ export class Pipeline {
       log(`extracted (${usedLlm ? "llm" : "heuristic"}): ${ex.supplierName} / ${ex.amount} ${ex.currency}`);
       d.supplier.name = ex.supplierName || "Proveedor desconocido";
       d.supplier.wallet = ex.wallet;
-      d.amount = { value: ex.amount || "0", currency: "ARGt" };
+      const cur = normalizeCurrency(ex.currency);
+      d.amount = { value: ex.amount || "0", currency: cur.code };
       step("extract", "done");
 
       // 2. Verify
@@ -99,6 +100,15 @@ export class Pipeline {
       d.risk.level = s.level;
       step("score", "done");
 
+      if (!cur.ok) {
+        // Deterministic: the vault only holds ARGt, never pay an amount stated in another currency.
+        step("execute", "skipped");
+        d.reason = currencyReason(cur.label, v.signals);
+        d.status = "blocked";
+        save();
+        log(`blocked: currency ${cur.code}`);
+        return;
+      }
       if (s.blocked) {
         step("execute", "skipped");
         return finish("blocked", "blocked", { signals: v.signals });

@@ -59,4 +59,11 @@ export function templateReason(
   }
 }
 
+/** Fixed text (no LLM) for an invoice in a currency we do not pay. */
+export function currencyReason(label: string, signals: Signal[] = []): string {
+  const base = `La factura está en una moneda que no pagamos (${label}). Solo pagamos facturas en pesos (ARGt).`;
+  const sigs = signals.map((s) => SIGNAL_TEXT[s]);
+  return `${base}${sigs.length ? ` Además, ${joinEs(sigs)}.` : ""} Bloqueé el pago y no se movió nada.`;
+}
+
 export { SIGNAL_TEXT, ONCHAIN_TEXT };
