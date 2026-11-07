@@ -31,8 +31,30 @@ Press **R** anywhere (outside inputs): live mode calls `POST /demo/reset`; fixtu
 
 ## Deploy (Vercel)
 
-1. Import the repo in Vercel, set **Root Directory** to `web`. Framework preset: Next.js.
-2. Env vars: `NEXT_PUBLIC_USE_FIXTURES=true` for the fixtures deploy. For live, set `NEXT_PUBLIC_USE_FIXTURES=false` and `NEXT_PUBLIC_AGENT_URL=https://<public tunnel to the agent>` (the agent already enables CORS) and redeploy (these are build-time vars).
+No `vercel.json` needed. Fixtures are committed in `web/fixtures/`; `prebuild` refreshes them from `../shared/fixtures` when that folder is visible and otherwise keeps the committed copy, so the build never needs files outside `web/`.
+
+Public link (fixtures mode):
+
+1. Vercel → Add New → Project → import the repo.
+2. **Root Directory**: `web`. **Framework Preset**: Next.js. Leave build/install/output commands on their defaults (`npm install`, `npm run build`, `.next`).
+3. Environment Variables: `NEXT_PUBLIC_USE_FIXTURES` = `true`.
+4. Deploy. The header shows "Modo demo: datos simulados" and every tx shows "Transacción simulada" (no Arbiscan links).
+
+Later, live data:
+
+1. Start the agent and its tunnel (`agent/scripts/tunnel.sh`) and copy the `https://…` URL.
+2. Project → Settings → Environment Variables: `NEXT_PUBLIC_USE_FIXTURES` = `false`, `NEXT_PUBLIC_AGENT_URL` = `<tunnel https URL>` (no trailing slash needed).
+3. Deployments → Redeploy (the `NEXT_PUBLIC_*` vars are inlined at build time, so a redeploy is required after every change, including a new tunnel URL).
+4. The agent's default `ALLOWED_ORIGINS` already allows `https://*.vercel.app`. The R reset from a non-local origin needs `x-guardia-key`, which the dashboard does not send: on Vercel it shows "Reset bloqueado: hace falta la clave del agente" and keeps the feed. Reset from the laptop dashboard (localhost) instead.
+
+Checks: `npm run lint` (TypeScript check; Next 16 removed `next lint`) and `NEXT_PUBLIC_USE_FIXTURES=true npm run build`. `next/font/google` downloads fonts at build time, so the build needs internet access to fonts.googleapis.com (Vercel has it).
+
+## How the dashboard reads agent states
+
+- `quote.source`: `curve` → "cotizado en Curve", `direct` → "pago directo en ARGt", `mock-fixed-rate` → "cotización simulada". If `quote.referenceRate` (BRAt per ARGt) is present, a small line shows "Referencia Belo: 1 BRAt ≈ N ARGt".
+- Simulated tx (fixtures mode, `mock-fixed-rate`, or a `0xf100…` fixture hash): "Transacción simulada" badge, no Arbiscan link. Real tx: "Ver en Arbiscan ↗".
+- `processing` + `txHash`: "Pago enviado, esperando confirmación en la red" with a pulsing dot and the tx link; the execute step shows as running.
+- Blocked for currency (reason mentions "moneda"): no conversion shown, the reason stays the headline, plus a "moneda no aceptada" chip. Paid/protected stats only add ARGt amounts.
 
 ## Structure
 
